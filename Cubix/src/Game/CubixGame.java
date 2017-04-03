@@ -1,6 +1,13 @@
 	package Game;
 	import java.awt.Color;
+	import java.io.IOException;
+	import java.net.InetAddress;
+	import java.net.UnknownHostException;
 
+	import javax.swing.JOptionPane;
+
+	import GameEngine.GameClient;
+	import GameEngine.GameServer;
 	import GameEngine.MoveDownKey;
 	import GameEngine.MoveLeftKey;
 	import GameEngine.MoveRightKey;
@@ -14,6 +21,7 @@
 	import sage.input.IInputManager;
 	import sage.input.ThirdPersonCameraController;
 	import sage.input.action.IAction;
+	import sage.networking.IGameConnection.ProtocolType;
 	import sage.renderer.IRenderer;
 	import sage.scene.Group;
 	import sage.scene.SceneNode;
@@ -31,10 +39,31 @@
 		private IDisplaySystem display;
 		private IInputManager im;
 		
+		private String serverAddress;
+		private int serverPort;
+		private ProtocolType serverProtocol;
+		private GameClient gameClient;
+		
 		// Gameworld Objects
 		private SceneNode avatar;  
 		private SkyBox skybox; 
+		private boolean isConnected;
 		Group rootNode; 
+		
+		//public CubixGame(String serverAddress, int serverPort)
+		public CubixGame()
+		{
+			super();
+			
+			//Get server information from console
+			//this.serverAddress = serverAddress;
+			//this.serverPort = serverPort;
+			//this.serverProtocol = ProtocolType.TCP;
+			
+			this.serverAddress = "127.0.0.1";
+			this.serverPort = 6000;
+			this.serverProtocol = ProtocolType.TCP;
+		}
 		
 		protected void initGame(){
 			im = getInputManager();
@@ -46,6 +75,29 @@
 			
 			createScene(); 
 			initInput(); 
+			
+			 int result = JOptionPane.showConfirmDialog(null,  "Create server?","Server",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(result == JOptionPane.YES_OPTION)
+				{
+					try
+					{
+						GameServer gameServer = new GameServer(6000);
+					}
+					catch(IOException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			
+			try
+			{
+				gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+				System.out.println(gameClient);
+			}
+			catch(UnknownHostException e) {e.printStackTrace();}
+			catch(IOException e) {e.printStackTrace();}
+			
+			if(gameClient != null) {gameClient.sendJoinMessage();}
 		}
 		
 		private void createScene(){
@@ -71,7 +123,7 @@
 			avatar = new Cube();
 			avatar.rotate(180, new Vector3D(0,1,0));
 			addGameWorldObject(avatar);
-
+			
 			// add 3D axis
 			Point3D origin = new Point3D(0,0,0);
 			Point3D xEnd = new Point3D(100,0,0);
@@ -127,7 +179,44 @@
 			camTranslation.translate(camLoc.getX(), camLoc.getY(), camLoc.getZ());
 			skybox.setLocalTranslation(camTranslation);
 			
+			// check packets
+			if(gameClient != null)
+			{
+				gameClient.ProcessPackets();
+			}
+			
 			// regular update
 			super.update(time);
 		}
+
+		public void setIsConnected(boolean b) {
+			isConnected = b;
+		}
+
+		public Vector3D getPosition() {
+			return avatar.getWorldTranslation().getCol(3);
+		}
+		
+		protected void shutdown()
+		{
+			super.shutdown();
+			if(gameClient != null)
+			{
+				gameClient.sendByeMessage();
+				try
+				{
+					gameClient.shutdown();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		public void addGhost(GhostAvatar ghost)
+		{
+			addGameWorldObject(ghost);
+		}
+
 }
