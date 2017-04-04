@@ -8,10 +8,12 @@ import sage.scene.SceneNode;
 public class MoveRightKey extends AbstractInputAction {
 	
 	private SceneNode avatar;
+	private GameClient client;
 	private float speed = 0.01f; // it would be better to use axis value
 	
-	public MoveRightKey(SceneNode n) {
+	public MoveRightKey(SceneNode n, GameClient c) {
 		avatar = n;
+		client = c;
 	}
 
 	public void performAction(float time, net.java.games.input.Event e) {
@@ -20,5 +22,7 @@ public class MoveRightKey extends AbstractInputAction {
 		dir = dir.mult(rot);
 		dir.scale((double) (speed * time));
 		avatar.translate((float) dir.getX(), (float) dir.getY(), (float) dir.getZ());
+		
+		client.sendMoveMessage(dir);
 	}
 }

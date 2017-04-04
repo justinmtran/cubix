@@ -3,8 +3,10 @@ package GameEngine;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.function.Predicate;
 
 import Game.CubixGame;
 import Game.GhostAvatar;
@@ -14,7 +16,7 @@ import sage.networking.client.GameConnectionClient;
 public class GameClient extends GameConnectionClient{
 	private CubixGame game;
 	private UUID id;
-	private Vector<GhostAvatar> ghostAvatars;
+	private ArrayList<GhostAvatar> ghostAvatars;
 
 	
 	public GameClient(InetAddress remAddr, int port, ProtocolType pType, CubixGame game) throws IOException
@@ -22,7 +24,7 @@ public class GameClient extends GameConnectionClient{
 		super(remAddr, port, pType);
 		this.game = game;
 		this.id = UUID.randomUUID();
-		this.ghostAvatars = new Vector<GhostAvatar>();
+		this.ghostAvatars = new ArrayList<GhostAvatar>();
 
 	}
 	
@@ -96,6 +98,9 @@ public class GameClient extends GameConnectionClient{
 		
 		if(msgTokens[0].compareTo("move")== 0)
 		{
+			UUID ghostID = UUID.fromString(msgTokens[1]);
+			GhostAvatar ghost = getGhost(ghostID);
+			ghost.translate(Float.parseFloat(msgTokens[2]), Float.parseFloat(msgTokens[3]), Float.parseFloat(msgTokens[4]));
 			
 		}
 	}
@@ -149,26 +154,63 @@ public class GameClient extends GameConnectionClient{
 	
 	public void sendMoveMessage(Vector3D pos)
 	{
-		
+		try
+		{
+			String message = new String("move," + id.toString());
+			message += "," + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+			sendPacket(message);
+		}
+		catch(IOException e) {e.printStackTrace();}
+
 	}
 	
 	public void removeGhostAvatar(UUID id)
 	{
-		ghostAvatars.remove(id);
 		System.out.println("Remove Ghost Avatar");
+		
+		GhostAvatar ghost = getGhost(id);
+
+		if(ghost != null)
+		{
+			game.removeGhost(ghost);
+			ghostAvatars.remove(ghost);
+		}
+		else
+		{
+			System.out.println("Ghost does not exist");
+		}
+		
 	}
+	
 	
 	public void createGhostAvatar(UUID id, Vector3D position)
 	{
-		GhostAvatar newGhost = new GhostAvatar(position);
+		GhostAvatar newGhost = new GhostAvatar(position, id);
 		game.addGhost(newGhost);
 		ghostAvatars.add(newGhost);
 		
 		System.out.println("Adding new Ghost");
 	}
 	
-	public Vector<GhostAvatar> getGhostAvatars()
+	public ArrayList<GhostAvatar> getGhostAvatars()
 	{
 		return ghostAvatars;
+	}
+	
+	private GhostAvatar getGhost(UUID id)
+	{
+		Iterator<GhostAvatar> iterator = ghostAvatars.iterator();
+		GhostAvatar ghost;
+		
+		while(iterator.hasNext())
+		{
+			ghost = iterator.next();
+			if (ghost.getID().toString().equals(id.toString()))
+			{
+				return ghost;
+			}
+		}
+		return null;
+		
 	}
 }

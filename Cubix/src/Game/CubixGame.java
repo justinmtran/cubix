@@ -73,9 +73,6 @@
 			cam = renderer.getCamera();
 			cam.setPerspectiveFrustum(60, 1, 1, 1000);
 			
-			createScene(); 
-			initInput(); 
-			
 			 int result = JOptionPane.showConfirmDialog(null,  "Create server?","Server",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if(result == JOptionPane.YES_OPTION)
 				{
@@ -98,6 +95,9 @@
 			catch(IOException e) {e.printStackTrace();}
 			
 			if(gameClient != null) {gameClient.sendJoinMessage();}
+			
+			createScene(); 
+			initInput(); 
 		}
 		
 		private void createScene(){
@@ -145,25 +145,25 @@
 			camController = new ThirdPersonCameraController(cam, avatar, im, mouseName);
 			
 			// initialize A key
-			IAction moveA = new MoveLeftKey(avatar);
+			IAction moveA = new MoveLeftKey(avatar, gameClient);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.A,
 					 moveA, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize D key
-			IAction moveD = new MoveRightKey(avatar);
+			IAction moveD = new MoveRightKey(avatar, gameClient);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.D,
 					 moveD, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize W key
-			IAction moveW = new MoveUpKey(avatar);
+			IAction moveW = new MoveUpKey(avatar, gameClient);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.W,
 					 moveW, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize S key
-			IAction moveS = new MoveDownKey(avatar);
+			IAction moveS = new MoveDownKey(avatar, gameClient);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.S,
 					 moveS, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -217,6 +217,11 @@
 		public void addGhost(GhostAvatar ghost)
 		{
 			addGameWorldObject(ghost);
+		}
+		
+		public void removeGhost(GhostAvatar ghost)
+		{
+			removeGameWorldObject(ghost);
 		}
 
 }

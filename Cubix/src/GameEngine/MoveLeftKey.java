@@ -8,10 +8,12 @@ import sage.scene.SceneNode;
 public class MoveLeftKey extends AbstractInputAction {
 
 	private SceneNode avatar;
+	private GameClient client;
 	private float speed = 0.01f; // it would be better to use axis value
 	
-	public MoveLeftKey(SceneNode n) {
+	public MoveLeftKey(SceneNode n, GameClient c) {
 		avatar = n;
+		client = c;
 	}
 
 	@Override
@@ -19,7 +21,8 @@ public class MoveLeftKey extends AbstractInputAction {
 		Matrix3D rot = avatar.getLocalRotation();
 		Vector3D dir = new Vector3D(1, 0, 0);
 		dir = dir.mult(rot);
-		dir.scale((double) (speed * time));
-		avatar.translate((float) -dir.getX(), (float) -dir.getY(), (float) -dir.getZ());
+		dir.scale(-(double) (speed * time));
+		avatar.translate((float) dir.getX(), (float) dir.getY(), (float) dir.getZ());
+		client.sendMoveMessage(dir);
 	}
 }
