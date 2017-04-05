@@ -182,7 +182,7 @@
 			// check packets
 			if(gameClient != null)
 			{
-				gameClient.ProcessPackets();
+				gameClient.processPackets();
 			}
 			
 			// regular update

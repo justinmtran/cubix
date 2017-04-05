@@ -5,8 +5,6 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
-import java.util.Vector;
-import java.util.function.Predicate;
 
 import Game.CubixGame;
 import Game.GhostAvatar;
@@ -28,17 +26,7 @@ public class GameClient extends GameConnectionClient{
 
 	}
 	
-	public void ProcessPackets()
-	{
-		ArrayList<Object> packets = (ArrayList<Object>)this.getPacketsReceived();
-		for(int i = 0; i < packets.size(); i++)
-		{
-			ProcessPacket(packets.get(i));
-			packets.remove(i);
-		}
-	}
-	
-	protected void ProcessPacket (Object msg)
+	protected void processPacket (Object msg)
 	{
 		System.out.println("MESSAGE: " + (String)msg);
 		String message = (String)msg;
