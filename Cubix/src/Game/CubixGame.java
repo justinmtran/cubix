@@ -28,6 +28,11 @@
 	import sage.scene.SkyBox;
 	import sage.scene.shape.Cube;
 	import sage.scene.shape.Line;
+	import sage.scene.state.RenderState;
+	import sage.scene.state.TextureState;
+	import sage.terrain.AbstractHeightMap;
+	import sage.terrain.ImageBasedHeightMap;
+	import sage.terrain.TerrainBlock;
 	import sage.texture.Texture;
 	import sage.texture.TextureManager;
 
@@ -43,6 +48,9 @@
 		private int serverPort;
 		private ProtocolType serverProtocol;
 		private GameClient gameClient;
+		
+		// Texture Objects
+		private TerrainBlock imgTerrain;
 		
 		// Gameworld Objects
 		private SceneNode avatar;  
@@ -97,17 +105,18 @@
 			if(gameClient != null) {gameClient.sendJoinMessage();}
 			
 			createScene(); 
+			initTerrain();
 			initInput(); 
 		}
 		
 		private void createScene(){
 			// create Textures
-			Texture north = TextureManager.loadTexture2D("images/textures/island_north.jpg");
-			Texture south = TextureManager.loadTexture2D("images/textures/island_south.jpg");
-			Texture up = TextureManager.loadTexture2D("images/textures/island_up.jpg");
-			Texture down = TextureManager.loadTexture2D("images/textures/island_down.jpg");
-			Texture east = TextureManager.loadTexture2D("images/textures/island_east.jpg"); 
-			Texture west = TextureManager.loadTexture2D("images/textures/island_west.jpg");
+			Texture north = TextureManager.loadTexture2D("images/textures/stage_island/island_north.jpg");
+			Texture south = TextureManager.loadTexture2D("images/textures/stage_island/island_south.jpg");
+			Texture up = TextureManager.loadTexture2D("images/textures/stage_island/island_up.jpg");
+			Texture down = TextureManager.loadTexture2D("images/textures/stage_island/island_down.jpg");
+			Texture east = TextureManager.loadTexture2D("images/textures/stage_island/island_east.jpg"); 
+			Texture west = TextureManager.loadTexture2D("images/textures/stage_island/island_west.jpg");
 			
 			// add Skybox
 			skybox = new SkyBox("Background",20.0f, 20.0f, 20.0f); 
@@ -137,6 +146,41 @@
 			addGameWorldObject(zAxis);
 		}
 		
+		private void initTerrain() { 
+			// create height map and terrain block
+			ImageBasedHeightMap myHeightMap = new ImageBasedHeightMap("images/terrains/height_map.jpg");
+			imgTerrain = createTerBlock(myHeightMap);
+			
+			// create texture and texture state to color the terrain
+			TextureState sandState;
+			Texture sandTexture = TextureManager.loadTexture2D("images/textures/stage_island/sand_texture.jpg");
+			sandTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
+			sandState = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
+			sandState.setTexture(sandTexture, 0);
+			sandState.setEnabled(true);
+			
+			// apply the texture to the terrain
+			imgTerrain.setRenderState(sandState);
+			addGameWorldObject(imgTerrain);
+		}
+		
+		private TerrainBlock createTerBlock(AbstractHeightMap heightMap) {
+			float heightScale = .008f; // scaling the height of terrain 
+			Vector3D terrainScale = new Vector3D(.2, heightScale, .2);
+			
+			// use the size of the height map as the size of the terrain
+			int terrainSize = heightMap.getSize();
+			
+			// specify terrain origin so heightmap (0,0) is at world origin
+			float cornerHeight = heightMap.getTrueHeightAtPoint(0, 0) * heightScale;
+			Point3D terrainOrigin = new Point3D(0, -cornerHeight, 0);
+			
+			// create a terrain block using the height map
+			String name = "Terrain:" + heightMap.getClass().getSimpleName();
+			TerrainBlock tb = new TerrainBlock(name, terrainSize, terrainScale, heightMap.getHeightData(), terrainOrigin);
+			return tb;
+		}
+		
 		protected void initInput(){
 			 String mouseName = im.getMouseName();
 			 String kbName = im.getKeyboardName();
@@ -145,25 +189,25 @@
 			camController = new ThirdPersonCameraController(cam, avatar, im, mouseName);
 			
 			// initialize A key
-			IAction moveA = new MoveLeftKey(avatar, gameClient);
+			IAction moveA = new MoveLeftKey(avatar, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.A,
 					 moveA, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize D key
-			IAction moveD = new MoveRightKey(avatar, gameClient);
+			IAction moveD = new MoveRightKey(avatar, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.D,
 					 moveD, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize W key
-			IAction moveW = new MoveUpKey(avatar, gameClient);
+			IAction moveW = new MoveUpKey(avatar, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.W,
 					 moveW, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize S key
-			IAction moveS = new MoveDownKey(avatar, gameClient);
+			IAction moveS = new MoveDownKey(avatar, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.S,
 					 moveS, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
