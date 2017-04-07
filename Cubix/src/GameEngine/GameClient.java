@@ -174,8 +174,9 @@ public class GameClient extends GameConnectionClient{
 	public void createGhostAvatar(UUID id, Vector3D position)
 	{
 		GhostAvatar newGhost = new GhostAvatar(position, id);
-		game.addGhost(newGhost);
 		ghostAvatars.add(newGhost);
+		game.addGhost(newGhost);
+
 		
 		System.out.println("Adding new Ghost");
 	}

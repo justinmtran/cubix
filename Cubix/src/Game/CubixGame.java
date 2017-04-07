@@ -1,10 +1,20 @@
 	package Game;
 	import java.awt.Color;
-	import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 	import java.net.InetAddress;
 	import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
-	import javax.swing.JOptionPane;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.swing.JOptionPane;
 
 	import GameEngine.GameClient;
 	import GameEngine.GameServer;
@@ -56,7 +66,10 @@
 		private SceneNode avatar;  
 		private SkyBox skybox; 
 		private boolean isConnected;
-		Group rootNode; 
+		private ScriptEngine engine;
+		private String scriptName = "scripts/Script.js";
+		private File scriptFile;
+		private long fileLastModifiedTime;
 		
 		//public CubixGame(String serverAddress, int serverPort)
 		public CubixGame()
@@ -65,7 +78,7 @@
 			
 			//Get server information from console
 			//this.serverAddress = serverAddress;
-			//this.serverPort = serverPort;
+			//this.serverPort = 	serverPort;
 			//this.serverProtocol = ProtocolType.TCP;
 			
 			this.serverAddress = "127.0.0.1";
@@ -103,6 +116,14 @@
 			catch(IOException e) {e.printStackTrace();}
 			
 			if(gameClient != null) {gameClient.sendJoinMessage();}
+			
+			ScriptEngineManager factory = new ScriptEngineManager();
+			List<ScriptEngineFactory> list = factory.getEngineFactories();
+			engine = factory.getEngineByName("js");
+			scriptFile = new File(scriptName);
+			fileLastModifiedTime = 0; //scriptFile.lastModified();
+			this.runScript();
+			
 			
 			createScene(); 
 			initTerrain();
@@ -213,7 +234,8 @@
 					 moveS, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		}
 		
-		public void update(float time){
+		public void update(float time)
+		{
 			// update 3p camera
 			camController.update(time);
 			
@@ -227,6 +249,15 @@
 			if(gameClient != null)
 			{
 				gameClient.processPackets();
+			}
+			
+			//Run script if file changes
+			long modTime = scriptFile.lastModified();
+			if(modTime > fileLastModifiedTime)
+			{
+				fileLastModifiedTime = modTime;
+				runScript();
+				executeScript();
 			}
 			
 			// regular update
@@ -261,11 +292,64 @@
 		public void addGhost(GhostAvatar ghost)
 		{
 			addGameWorldObject(ghost);
+			executeScript();
 		}
 		
 		public void removeGhost(GhostAvatar ghost)
 		{
 			removeGameWorldObject(ghost);
+		}
+		
+		private void runScript()
+		{
+			try
+			{
+				FileReader fileReader = new FileReader(scriptFile);
+				engine.eval(fileReader);
+				fileReader.close();
+			}
+			catch (FileNotFoundException e1)
+			{
+				System.out.println(scriptFile + " not found" + e1);
+			}
+			catch (IOException e2)
+			{
+				System.out.println("IO problem with " + scriptFile + e2);
+			}
+			catch (ScriptException e3)
+			{
+				System.out.println("ScriptException in " + scriptFile + e3);
+			}
+			catch (NullPointerException e4)
+			{
+				System.out.println("Null ptr exception reading " + scriptFile + e4);
+			}
+			
+		}
+		
+		private void executeScript()
+		{
+			Invocable invocableEngine = (Invocable) engine;
+			try
+			{
+				ArrayList<GhostAvatar> ghosts = gameClient.getGhostAvatars();
+				for(int i = 0; i < ghosts.size(); i++)
+				{
+					invocableEngine.invokeFunction("updateGhost", ghosts.get(i));
+				}
+			}
+			catch (ScriptException e1)
+			{
+				System.out.println("ScriptException in " + scriptFile + e1);
+			}
+			catch (NoSuchMethodException e2)
+			{
+				System.out.println("No such method exception in " + scriptFile + e2);
+			}
+			catch(NullPointerException e3)
+			{
+				System.out.println("Null pointer exception reading " + scriptFile + e3);
+			}
 		}
 
 }
