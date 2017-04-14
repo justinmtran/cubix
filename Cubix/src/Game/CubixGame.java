@@ -62,7 +62,8 @@ import sage.texture.TextureManager;
 		private TerrainBlock imgTerrain;
 		
 		// Gameworld Objects
-		private SceneNode avatar;  
+		private SceneNode avatar;
+		private PlayerAvatar player;
 		private SkyBox skybox; 
 		private boolean isConnected;
 		private ScriptEngine engine;
@@ -126,7 +127,16 @@ import sage.texture.TextureManager;
 			
 			createScene(); 
 			initTerrain();
+			
+			player = new PlayerAvatar(imgTerrain);
+			player.translate(3, 0, 3);
+			player.rotate(180, new Vector3D(0,1,0));
+			addGameWorldObject(player);
+			
+			
 			initInput(); 
+			
+			
 		}
 		
 		private void createScene(){
@@ -151,7 +161,10 @@ import sage.texture.TextureManager;
 			// add Player 
 			avatar = new Cube();
 			avatar.rotate(180, new Vector3D(0,1,0));
+			avatar.translate(0, 1, 0);
 			addGameWorldObject(avatar);
+			
+
 			
 			// add 3D axis
 			Point3D origin = new Point3D(0,0,0);
@@ -209,25 +222,25 @@ import sage.texture.TextureManager;
 			camController = new ThirdPersonCameraController(cam, avatar, im, mouseName);
 			
 			// initialize A key
-			IAction moveA = new MoveLeftKey(avatar, gameClient, imgTerrain);
+			IAction moveA = new MoveLeftKey(player, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.A,
 					 moveA, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize D key
-			IAction moveD = new MoveRightKey(avatar, gameClient, imgTerrain);
+			IAction moveD = new MoveRightKey(player, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.D,
 					 moveD, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize W key
-			IAction moveW = new MoveUpKey(avatar, gameClient, imgTerrain);
+			IAction moveW = new MoveUpKey(player, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.W,
 					 moveW, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			
 			// initialize S key
-			IAction moveS = new MoveDownKey(avatar, gameClient, imgTerrain);
+			IAction moveS = new MoveDownKey(player, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.S,
 					 moveS, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -258,6 +271,8 @@ import sage.texture.TextureManager;
 				runScript();
 				executeScript();
 			}
+			
+			player.update(time);
 			
 			// regular update
 			super.update(time);
