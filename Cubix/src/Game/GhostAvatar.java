@@ -3,21 +3,25 @@ package Game;
 import java.util.UUID;
 
 import graphicslib3D.Vector3D;
-import sage.scene.shape.Sphere;
+import sage.terrain.TerrainBlock;
 
-public class GhostAvatar extends Sphere{
+public class GhostAvatar extends PlayerAvatar{
 	
 	private UUID id;
 	
-	public GhostAvatar(Vector3D position, UUID id) {
+	public GhostAvatar(Vector3D position, UUID id, TerrainBlock t) {
+		super(t, null);
 		this.translate((float)position.getX(), (float)position.getY(), (float)position.getZ());
 		this.id = id;
-		this.scale(2,2,2);
 	}
 	
 	public UUID getID()
 	{
 		return id;
 	}
+	
+	public void updateVerticalPosition(){
+		 super.updateVerticalPosition();
+	 }
 
 }

@@ -94,6 +94,33 @@ import sage.texture.TextureManager;
 			cam = renderer.getCamera();
 			cam.setPerspectiveFrustum(60, 1, 1, 1000);
 			
+
+			
+			ScriptEngineManager factory = new ScriptEngineManager();
+			List<ScriptEngineFactory> list = factory.getEngineFactories();
+			engine = factory.getEngineByName("js");
+			scriptFile = new File(scriptName);
+			fileLastModifiedTime = 0; //scriptFile.lastModified();
+			this.runScript();
+			
+			
+			createScene(); 
+			initTerrain();
+			initNetwork();
+			
+			player = new PlayerAvatar(imgTerrain, gameClient);
+			player.translate(3, 0, 3);
+			player.rotate(180, new Vector3D(0,1,0));
+			addGameWorldObject(player);
+			
+			
+			initInput(); 
+			
+			
+		}
+		
+		private void initNetwork()
+		{
 			 int result = JOptionPane.showConfirmDialog(null,  "Create server?","Server",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if(result == JOptionPane.YES_OPTION)
 				{
@@ -109,34 +136,13 @@ import sage.texture.TextureManager;
 			
 			try
 			{
-				gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+				gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this, imgTerrain);
 				System.out.println(gameClient);
 			}
 			catch(UnknownHostException e) {e.printStackTrace();}
 			catch(IOException e) {e.printStackTrace();}
 			
 			if(gameClient != null) {gameClient.sendJoinMessage();}
-			
-			ScriptEngineManager factory = new ScriptEngineManager();
-			List<ScriptEngineFactory> list = factory.getEngineFactories();
-			engine = factory.getEngineByName("js");
-			scriptFile = new File(scriptName);
-			fileLastModifiedTime = 0; //scriptFile.lastModified();
-			this.runScript();
-			
-			
-			createScene(); 
-			initTerrain();
-			
-			player = new PlayerAvatar(imgTerrain);
-			player.translate(3, 0, 3);
-			player.rotate(180, new Vector3D(0,1,0));
-			addGameWorldObject(player);
-			
-			
-			initInput(); 
-			
-			
 		}
 		
 		private void createScene(){
@@ -264,15 +270,22 @@ import sage.texture.TextureManager;
 			}
 			
 			//Run script if file changes
-			long modTime = scriptFile.lastModified();
-			if(modTime > fileLastModifiedTime)
+			//long modTime = scriptFile.lastModified();
+			//if(modTime > fileLastModifiedTime)
 			{
-				fileLastModifiedTime = modTime;
-				runScript();
-				executeScript();
+				//fileLastModifiedTime = modTime;
+				//runScript();
+				//executeScript();  Need to implement this as grid creation.  Temporarily removed.
 			}
 			
 			player.update(time);
+			
+			//Update ghosts
+			ArrayList<GhostAvatar> ghosts = gameClient.getGhostAvatars();
+			for(int i = 0; i < ghosts.size(); i++)
+			{
+				ghosts.get(i).update(time);
+			}
 			
 			// regular update
 			super.update(time);
@@ -283,7 +296,7 @@ import sage.texture.TextureManager;
 		}
 
 		public Vector3D getPosition() {
-			return avatar.getWorldTranslation().getCol(3);
+			return player.getLocalTranslation().getCol(3);
 		}
 		
 		protected void shutdown()

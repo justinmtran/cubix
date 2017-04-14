@@ -1,5 +1,6 @@
 package Game;
 
+import GameEngine.GameClient;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
 import sage.scene.shape.Cube;
@@ -10,10 +11,12 @@ public class PlayerAvatar extends Cube{
 	private Vector3D rot, translation;
 	private float rotated;
 	private TerrainBlock terrain; 
+	GameClient client;
 	
-	public PlayerAvatar(TerrainBlock t)
+	public PlayerAvatar(TerrainBlock t, GameClient c)
 	{
 		terrain = t;
+		client = c;
 		updateVerticalPosition();
 	}
 	
@@ -25,6 +28,11 @@ public class PlayerAvatar extends Cube{
 			translation = trans;
 			isMoving = true;
 			rotated = 0;
+			if(client != null)
+			{
+				client.sendMoveMessage(rotAxis, trans);
+			}
+			
 		}
 
 	}
@@ -55,7 +63,7 @@ public class PlayerAvatar extends Cube{
 		}
 	}
 	
-	private void updateVerticalPosition(){
+	protected void updateVerticalPosition(){
 		 // get avatar's X and Y coord.
 		 Point3D avLoc = new Point3D(this.getLocalTranslation().getCol(3)); // get local XYZ coord
 		 float x = (float) avLoc.getX();

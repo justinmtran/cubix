@@ -10,20 +10,23 @@ import Game.CubixGame;
 import Game.GhostAvatar;
 import graphicslib3D.Vector3D;
 import sage.networking.client.GameConnectionClient;
+import sage.scene.SceneNode;
+import sage.terrain.TerrainBlock;
 
 public class GameClient extends GameConnectionClient{
 	private CubixGame game;
 	private UUID id;
 	private ArrayList<GhostAvatar> ghostAvatars;
+	private TerrainBlock terrain;
 
 	
-	public GameClient(InetAddress remAddr, int port, ProtocolType pType, CubixGame game) throws IOException
+	public GameClient(InetAddress remAddr, int port, ProtocolType pType, CubixGame game, TerrainBlock t) throws IOException
 	{
 		super(remAddr, port, pType);
 		this.game = game;
 		this.id = UUID.randomUUID();
 		this.ghostAvatars = new ArrayList<GhostAvatar>();
-
+		this.terrain = t;
 	}
 	
 	protected void processPacket (Object msg)
@@ -88,8 +91,9 @@ public class GameClient extends GameConnectionClient{
 		{
 			UUID ghostID = UUID.fromString(msgTokens[1]);
 			GhostAvatar ghost = getGhost(ghostID);
-			ghost.translate(Float.parseFloat(msgTokens[2]), Float.parseFloat(msgTokens[3]), Float.parseFloat(msgTokens[4]));
-			
+			Vector3D rotation = new Vector3D(Float.parseFloat(msgTokens[2]), Float.parseFloat(msgTokens[3]), Float.parseFloat(msgTokens[4]));
+			Vector3D translation = new Vector3D(Float.parseFloat(msgTokens[5]), Float.parseFloat(msgTokens[6]), Float.parseFloat(msgTokens[7]));
+			ghost.move(rotation, translation);
 		}
 	}
 	
@@ -140,12 +144,13 @@ public class GameClient extends GameConnectionClient{
 		System.out.println("Sending DetailsForMessage");
 	}
 	
-	public void sendMoveMessage(Vector3D pos)
+	public void sendMoveMessage(Vector3D pos, Vector3D ter)
 	{
 		try
 		{
 			String message = new String("move," + id.toString());
 			message += "," + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+			message += "," + ter.getX() + "," + ter.getY() + "," + ter.getZ();
 			sendPacket(message);
 		}
 		catch(IOException e) {e.printStackTrace();}
@@ -173,10 +178,10 @@ public class GameClient extends GameConnectionClient{
 	
 	public void createGhostAvatar(UUID id, Vector3D position)
 	{
-		GhostAvatar newGhost = new GhostAvatar(position, id);
+		GhostAvatar newGhost = new GhostAvatar(position, id, terrain);
 		ghostAvatars.add(newGhost);
 		game.addGhost(newGhost);
-
+		newGhost.updateVerticalPosition();
 		
 		System.out.println("Adding new Ghost");
 	}
