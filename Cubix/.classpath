@@ -2,17 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="var" path="CORE"/>
-	<classpathentry kind="var" path="GLUEGEN-RT"/>
-	<classpathentry kind="var" path="GRAPHICS-LIB-3D"/>
-	<classpathentry kind="var" path="JBULLET"/>
-	<classpathentry kind="var" path="JINPUT"/>
-	<classpathentry kind="var" path="JOAL"/>
-	<classpathentry kind="var" path="JOGL-ALL"/>
-	<classpathentry kind="var" path="LUAJ-JSE"/>
-	<classpathentry kind="var" path="SAGE"/>
-	<classpathentry kind="var" path="SAGE-TEST"/>
-	<classpathentry kind="var" path="VECMATH"/>
 	<classpathentry kind="lib" path="C:/javagaming/jinput/jinput.jar"/>
 	<classpathentry kind="lib" path="C:/javagaming/sage/sage.jar"/>
 	<classpathentry kind="lib" path="C:/javagaming/jogl/gluegen-rt.jar"/>

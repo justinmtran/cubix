@@ -78,7 +78,7 @@ import javax.swing.JOptionPane;
 			
 			//Get server information from console
 			//this.serverAddress = serverAddress;
-			//this.serverPort = 	serverPort;
+			//this.serverPort = serverPort;
 			//this.serverProtocol = ProtocolType.TCP;
 			
 			this.serverAddress = "127.0.0.1";
