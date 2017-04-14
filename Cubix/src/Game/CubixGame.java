@@ -1,11 +1,11 @@
-	package Game;
-	import java.awt.Color;
+package Game;
+import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-	import java.net.InetAddress;
-	import java.net.UnknownHostException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,35 +16,34 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JOptionPane;
 
-	import GameEngine.GameClient;
-	import GameEngine.GameServer;
-	import GameEngine.MoveDownKey;
-	import GameEngine.MoveLeftKey;
-	import GameEngine.MoveRightKey;
-	import GameEngine.MoveUpKey;
-	import graphicslib3D.Matrix3D;
-	import graphicslib3D.Point3D;
-	import graphicslib3D.Vector3D;
-	import sage.app.BaseGame;
-	import sage.camera.ICamera;
-	import sage.display.IDisplaySystem;
-	import sage.input.IInputManager;
-	import sage.input.ThirdPersonCameraController;
-	import sage.input.action.IAction;
-	import sage.networking.IGameConnection.ProtocolType;
-	import sage.renderer.IRenderer;
-	import sage.scene.Group;
-	import sage.scene.SceneNode;
-	import sage.scene.SkyBox;
-	import sage.scene.shape.Cube;
-	import sage.scene.shape.Line;
-	import sage.scene.state.RenderState;
-	import sage.scene.state.TextureState;
-	import sage.terrain.AbstractHeightMap;
-	import sage.terrain.ImageBasedHeightMap;
-	import sage.terrain.TerrainBlock;
-	import sage.texture.Texture;
-	import sage.texture.TextureManager;
+import GameEngine.GameClient;
+import GameEngine.GameServer;
+import GameEngine.MoveDownKey;
+import GameEngine.MoveLeftKey;
+import GameEngine.MoveRightKey;
+import GameEngine.MoveUpKey;
+import graphicslib3D.Matrix3D;
+import graphicslib3D.Point3D;
+import graphicslib3D.Vector3D;
+import sage.app.BaseGame;
+import sage.camera.ICamera;
+import sage.display.IDisplaySystem;
+import sage.input.IInputManager;
+import sage.input.ThirdPersonCameraController;
+import sage.input.action.IAction;
+import sage.networking.IGameConnection.ProtocolType;
+import sage.renderer.IRenderer;
+import sage.scene.SceneNode;
+import sage.scene.SkyBox;
+import sage.scene.shape.Cube;
+import sage.scene.shape.Line;
+import sage.scene.state.RenderState;
+import sage.scene.state.TextureState;
+import sage.terrain.AbstractHeightMap;
+import sage.terrain.ImageBasedHeightMap;
+import sage.terrain.TerrainBlock;
+import sage.texture.Texture;
+import sage.texture.TextureManager;
 
 	public class CubixGame extends BaseGame{
 		// Mechanical Objects
@@ -99,7 +98,7 @@ import javax.swing.JOptionPane;
 				{
 					try
 					{
-						GameServer gameServer = new GameServer(6000);
+						new GameServer(6000);
 					}
 					catch(IOException e)
 					{
