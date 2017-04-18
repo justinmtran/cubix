@@ -32,6 +32,8 @@ import sage.input.IInputManager;
 import sage.input.ThirdPersonCameraController;
 import sage.input.action.IAction;
 import sage.networking.IGameConnection.ProtocolType;
+import sage.physics.IPhysicsEngine;
+import sage.physics.PhysicsEngineFactory;
 import sage.renderer.IRenderer;
 import sage.scene.SceneNode;
 import sage.scene.SkyBox;
@@ -52,6 +54,7 @@ import sage.texture.TextureManager;
 		private IRenderer renderer;
 		private IDisplaySystem display;
 		private IInputManager im;
+		private IPhysicsEngine pe; 
 		
 		private String serverAddress;
 		private int serverPort;
@@ -90,11 +93,10 @@ import sage.texture.TextureManager;
 			im = getInputManager();
 			display = getDisplaySystem();
 			renderer = display.getRenderer();
+			
 			// init Camera
 			cam = renderer.getCamera();
 			cam.setPerspectiveFrustum(60, 1, 1, 1000);
-			
-
 			
 			ScriptEngineManager factory = new ScriptEngineManager();
 			List<ScriptEngineFactory> list = factory.getEngineFactories();
@@ -103,9 +105,13 @@ import sage.texture.TextureManager;
 			fileLastModifiedTime = 0; //scriptFile.lastModified();
 			this.runScript();
 			
-			
 			createScene(); 
 			initTerrain();
+			
+			// initalize physics
+			initPhysicsSystem(); 
+			createSagePhysicsWorld(); 
+			
 			initNetwork();
 			
 			player = new PlayerAvatar(imgTerrain, gameClient);
@@ -113,10 +119,20 @@ import sage.texture.TextureManager;
 			player.rotate(180, new Vector3D(0,1,0));
 			addGameWorldObject(player);
 			
-			
 			initInput(); 
+		}
+		
+		protected void initPhysicsSystem(){
+			String engine = "sage.physics.JBullet.JBulletPhysicsEngine";
+			float[] gravity = { 0, -1f, 0 };
 			
-			
+			pe = PhysicsEngineFactory.createPhysicsEngine(engine);
+			pe.initSystem();
+			pe.setGravity(gravity);
+		}
+		
+		private void createSagePhysicsWorld(){
+			// TODO add graphical objects with physics
 		}
 		
 		private void initNetwork()
@@ -147,12 +163,12 @@ import sage.texture.TextureManager;
 		
 		private void createScene(){
 			// create Textures
-			Texture north = TextureManager.loadTexture2D("images/textures/stage_island/island_north.jpg");
-			Texture south = TextureManager.loadTexture2D("images/textures/stage_island/island_south.jpg");
-			Texture up = TextureManager.loadTexture2D("images/textures/stage_island/island_up.jpg");
-			Texture down = TextureManager.loadTexture2D("images/textures/stage_island/island_down.jpg");
-			Texture east = TextureManager.loadTexture2D("images/textures/stage_island/island_east.jpg"); 
-			Texture west = TextureManager.loadTexture2D("images/textures/stage_island/island_west.jpg");
+			Texture north = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_north.jpg");
+			Texture south = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_south.jpg");
+			Texture up = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_up.jpg");
+			Texture down = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_down.jpg");
+			Texture east = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_east.jpg"); 
+			Texture west = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_west.jpg");
 			
 			// add Skybox
 			skybox = new SkyBox("Background",20.0f, 20.0f, 20.0f); 
@@ -192,7 +208,7 @@ import sage.texture.TextureManager;
 			
 			// create texture and texture state to color the terrain
 			TextureState sandState;
-			Texture sandTexture = TextureManager.loadTexture2D("images/textures/stage_island/sand_texture.jpg");
+			Texture sandTexture = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_texture.jpg");
 			sandTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 			sandState = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
 			sandState.setTexture(sandTexture, 0);
