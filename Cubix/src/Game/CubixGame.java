@@ -211,7 +211,7 @@ import sage.texture.TextureManager;
 			lighthouse.translate(20, 0, 20);
 			Texture lighthouseTexture = TextureManager.loadTexture2D("images/textures/objects/LighthouseUV.png");
 			lighthouse.setTexture(lighthouseTexture);
-			lighthouse.translate(0, 2, 0);
+			lighthouse.translate(0, 3, 0);
 			addGameWorldObject(lighthouse);
 		}
 		
