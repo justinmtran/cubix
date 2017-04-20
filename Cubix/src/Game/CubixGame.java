@@ -32,11 +32,13 @@ import sage.camera.ICamera;
 import sage.display.IDisplaySystem;
 import sage.input.IInputManager;
 import sage.input.action.IAction;
+import sage.model.loader.OBJLoader;
 import sage.networking.IGameConnection.ProtocolType;
 import sage.physics.IPhysicsEngine;
 import sage.physics.PhysicsEngineFactory;
 import sage.renderer.IRenderer;
 import sage.scene.SceneNode;
+import sage.scene.TriMesh;
 import sage.scene.shape.Line;
 import sage.scene.shape.Sphere;
 import sage.scene.state.RenderState;
@@ -201,6 +203,16 @@ import sage.texture.TextureManager;
 			addGameWorldObject(xAxis); 
 			addGameWorldObject(yAxis);
 			addGameWorldObject(zAxis);
+			
+			//Add Lighthouse
+			OBJLoader loader = new OBJLoader();
+			TriMesh lighthouse = loader.loadModel("objects/LighthouseUV.obj");
+			lighthouse.updateLocalBound();
+			lighthouse.translate(20, 0, 20);
+			Texture lighthouseTexture = TextureManager.loadTexture2D("images/textures/objects/LighthouseUV.png");
+			lighthouse.setTexture(lighthouseTexture);
+			lighthouse.translate(0, 2, 0);
+			addGameWorldObject(lighthouse);
 		}
 		
 		private void initTerrain() { 
@@ -299,7 +311,7 @@ import sage.texture.TextureManager;
 		public void addGhost(GhostAvatar ghost)
 		{
 			addGameWorldObject(ghost);
-			executeScript();
+			//executeScript();
 		}
 		
 		public void removeGhost(GhostAvatar ghost)

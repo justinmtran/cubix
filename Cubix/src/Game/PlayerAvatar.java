@@ -22,6 +22,7 @@ public class PlayerAvatar extends Cube{
 	
 	public void move(Vector3D rotAxis, Vector3D trans)
 	{
+
 		if(!isMoving)
 		{
 			rot = rotAxis.mult(this.getLocalRotation().inverse());
@@ -32,14 +33,12 @@ public class PlayerAvatar extends Cube{
 			{
 				client.sendMoveMessage(rotAxis, trans);
 			}
-			
 		}
-
 	}
 	
 	public void update(float time)
 	{
-		float rotSpeed = 0.50f;
+		float rotSpeed = 0.5f;
 		if(isMoving)
 		{
 			float rotationAmt;
