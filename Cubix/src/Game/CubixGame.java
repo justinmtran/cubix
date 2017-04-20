@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -16,6 +17,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JOptionPane;
 
+import GameEngine.CubixCameraController;
 import GameEngine.GameClient;
 import GameEngine.GameServer;
 import GameEngine.MoveDownKey;
@@ -29,16 +31,14 @@ import sage.app.BaseGame;
 import sage.camera.ICamera;
 import sage.display.IDisplaySystem;
 import sage.input.IInputManager;
-import sage.input.ThirdPersonCameraController;
 import sage.input.action.IAction;
 import sage.networking.IGameConnection.ProtocolType;
 import sage.physics.IPhysicsEngine;
 import sage.physics.PhysicsEngineFactory;
 import sage.renderer.IRenderer;
 import sage.scene.SceneNode;
-import sage.scene.SkyBox;
-import sage.scene.shape.Cube;
 import sage.scene.shape.Line;
+import sage.scene.shape.Sphere;
 import sage.scene.state.RenderState;
 import sage.scene.state.TextureState;
 import sage.terrain.AbstractHeightMap;
@@ -48,8 +48,11 @@ import sage.texture.Texture;
 import sage.texture.TextureManager;
 
 	public class CubixGame extends BaseGame{
+		// Constants
+		private final int MAX_SNOW = 45;
+		
 		// Mechanical Objects
-		private ThirdPersonCameraController camController; 
+		private CubixCameraController camController; 
 		private ICamera cam; 
 		private IRenderer renderer;
 		private IDisplaySystem display;
@@ -65,14 +68,15 @@ import sage.texture.TextureManager;
 		private TerrainBlock imgTerrain;
 		
 		// Gameworld Objects
-		private SceneNode avatar;
 		private PlayerAvatar player;
-		private SkyBox skybox; 
+		private Theme skybox; 
 		private boolean isConnected;
 		private ScriptEngine engine;
 		private String scriptName = "scripts/Script.js";
 		private File scriptFile;
 		private long fileLastModifiedTime;
+		private Sphere[] snow; 
+		private float windTimer; 
 		
 		//public CubixGame(String serverAddress, int serverPort)
 		public CubixGame()
@@ -105,6 +109,8 @@ import sage.texture.TextureManager;
 			fileLastModifiedTime = 0; //scriptFile.lastModified();
 			this.runScript();
 			
+			snow = new Sphere[MAX_SNOW];
+			
 			createScene(); 
 			initTerrain();
 			
@@ -113,31 +119,36 @@ import sage.texture.TextureManager;
 			createSagePhysicsWorld(); 
 			
 			initNetwork();
-			
+			createPlayer(); 
+			initInput(); 
+		}
+		
+		private void createPlayer(){
 			player = new PlayerAvatar(imgTerrain, gameClient);
 			player.translate(3, 0, 3);
 			player.rotate(180, new Vector3D(0,1,0));
 			addGameWorldObject(player);
-			
-			initInput(); 
 		}
 		
 		protected void initPhysicsSystem(){
-			String engine = "sage.physics.JBullet.JBulletPhysicsEngine";
-			float[] gravity = { 0, -1f, 0 };
-			
+			String engine = "sage.physics.ODE4J.ODE4JPhysicsEngine";
 			pe = PhysicsEngineFactory.createPhysicsEngine(engine);
 			pe.initSystem();
-			pe.setGravity(gravity);
+			pe.setGravity(new float[] {0, -.1f, 0});
 		}
 		
 		private void createSagePhysicsWorld(){
-			// TODO add graphical objects with physics
+			for(int i = 0; i < MAX_SNOW; i++){
+				// add the snow physics
+				float mass = 1.0f;
+				snow[i].setPhysicsObject(pe.addSphereObject(pe.nextUID(), mass, 
+										 snow[i].getWorldTransform().getValues(),1.0f));
+			}
 		}
 		
 		private void initNetwork()
 		{
-			 int result = JOptionPane.showConfirmDialog(null,  "Create server?","Server",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			 int result = JOptionPane.showConfirmDialog(null, "Create server?","Server",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if(result == JOptionPane.YES_OPTION)
 				{
 					try
@@ -162,31 +173,22 @@ import sage.texture.TextureManager;
 		}
 		
 		private void createScene(){
-			// create Textures
-			Texture north = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_north.jpg");
-			Texture south = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_south.jpg");
-			Texture up = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_up.jpg");
-			Texture down = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_down.jpg");
-			Texture east = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_east.jpg"); 
-			Texture west = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_west.jpg");
 			
 			// add Skybox
-			skybox = new SkyBox("Background",20.0f, 20.0f, 20.0f); 
-			skybox.setTexture(SkyBox.Face.North, north);
-			skybox.setTexture(SkyBox.Face.South, south);
-			skybox.setTexture(SkyBox.Face.Up, up);
-			skybox.setTexture(SkyBox.Face.Down, down);
-			skybox.setTexture(SkyBox.Face.East, east);
-			skybox.setTexture(SkyBox.Face.West, west);
+			skybox = new Theme("Background",20.0f, 20.0f, 20.0f); 
+			skybox.snowTheme(this);
 			addGameWorldObject(skybox);
 			
-			// add Player 
-			avatar = new Cube();
-			avatar.rotate(180, new Vector3D(0,1,0));
-			avatar.translate(0, 1, 0);
-			addGameWorldObject(avatar);
-			
-
+			// add snow
+			Random rn = new Random();  
+			for(int i = 0; i < MAX_SNOW; i++){
+				snow[i] = new Sphere(.09, 16, 16, Color.white);
+				Matrix3D xform = new Matrix3D();
+				xform.translate(rn.nextInt(30), rn.nextInt(15)+10, rn.nextInt(30));
+				snow[i].setLocalTranslation(xform);
+				addGameWorldObject(snow[i]);
+				snow[i].updateGeometricState(1.0f, true);
+			}
 			
 			// add 3D axis
 			Point3D origin = new Point3D(0,0,0);
@@ -207,15 +209,15 @@ import sage.texture.TextureManager;
 			imgTerrain = createTerBlock(myHeightMap);
 			
 			// create texture and texture state to color the terrain
-			TextureState sandState;
-			Texture sandTexture = TextureManager.loadTexture2D("images/textures/stage_glacier/glacier_texture.jpg");
+			TextureState state;
+			Texture sandTexture = TextureManager.loadTexture2D("images/textures/stage_snow/snow_texture.jpg");
 			sandTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
-			sandState = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
-			sandState.setTexture(sandTexture, 0);
-			sandState.setEnabled(true);
+			state = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
+			state.setTexture(sandTexture, 0);
+			state.setEnabled(true);
 			
 			// apply the texture to the terrain
-			imgTerrain.setRenderState(sandState);
+			imgTerrain.setRenderState(state);
 			addGameWorldObject(imgTerrain);
 		}
 		
@@ -241,7 +243,7 @@ import sage.texture.TextureManager;
 			 String kbName = im.getKeyboardName();
 			
 			// apply SAGE built-in 3P camera controller
-			camController = new ThirdPersonCameraController(cam, avatar, im, mouseName);
+			camController = new CubixCameraController(cam, player, im, mouseName);
 			
 			// initialize A key
 			IAction moveA = new MoveLeftKey(player, gameClient, imgTerrain);
@@ -266,45 +268,6 @@ import sage.texture.TextureManager;
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.S,
 					 moveS, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		}
-		
-		public void update(float time)
-		{
-			// update 3p camera
-			camController.update(time);
-			
-			// update skybox position
-			Point3D camLoc = cam.getLocation();
-			Matrix3D camTranslation = new Matrix3D(); 
-			camTranslation.translate(camLoc.getX(), camLoc.getY(), camLoc.getZ());
-			skybox.setLocalTranslation(camTranslation);
-			
-			// check packets
-			if(gameClient != null)
-			{
-				gameClient.processPackets();
-			}
-			
-			//Run script if file changes
-			//long modTime = scriptFile.lastModified();
-			//if(modTime > fileLastModifiedTime)
-			{
-				//fileLastModifiedTime = modTime;
-				//runScript();
-				//executeScript();  Need to implement this as grid creation.  Temporarily removed.
-			}
-			
-			player.update(time);
-			
-			//Update ghosts
-			ArrayList<GhostAvatar> ghosts = gameClient.getGhostAvatars();
-			for(int i = 0; i < ghosts.size(); i++)
-			{
-				ghosts.get(i).update(time);
-			}
-			
-			// regular update
-			super.update(time);
 		}
 
 		public void setIsConnected(boolean b) {
@@ -393,6 +356,75 @@ import sage.texture.TextureManager;
 			{
 				System.out.println("Null pointer exception reading " + scriptFile + e3);
 			}
+		}
+		
+		public void update(float time)
+		{
+			// WIND PHYSICS
+			windTimer +=time; 
+			if(windTimer < 5000) // NO WIND
+				pe.setGravity(new float[] {-.01f, -.1f, 0});
+			else{ // WIND
+				pe.setGravity(new float[] { -.2f, -.1f, 0});
+				if(windTimer > 8000)
+					windTimer = 0; 
+			}
+			// WIND PHYSICS
+			for(int i = 0; i < MAX_SNOW; i++){
+				if(snow[i].getWorldTransform().getCol(3).getY() <= 1){
+					Random rn = new Random(); 
+					Matrix3D xform = new Matrix3D();
+					xform.translate(rn.nextInt(30), rn.nextInt(15)+10, rn.nextInt(30));
+					snow[i].getLocalTranslation().setCol(3,xform.getCol(3));
+					snow[i].getPhysicsObject().setTransform(xform.getValues());
+				}
+			}
+			// WIND PHYSICS
+			Matrix3D mat;
+			pe.update(20.0f);
+			for (SceneNode s : getGameWorld()) {
+				if (s.getPhysicsObject() != null) {
+					mat = new Matrix3D(s.getPhysicsObject().getTransform());
+					s.getLocalTranslation().setCol(3, mat.getCol(3));
+					// should also get and apply rotation
+				}
+			}
+			
+			// update 3p camera
+			camController.update(time);
+			
+			// update skybox position
+			Point3D camLoc = cam.getLocation();
+			Matrix3D camTranslation = new Matrix3D(); 
+			camTranslation.translate(camLoc.getX(), camLoc.getY(), camLoc.getZ());
+			skybox.setLocalTranslation(camTranslation);
+			
+			// check packets
+			if(gameClient != null)
+			{
+				gameClient.processPackets();
+			}
+			
+			//Run script if file changes
+			//long modTime = scriptFile.lastModified();
+			//if(modTime > fileLastModifiedTime)
+			{
+				//fileLastModifiedTime = modTime;
+				//runScript();
+				//executeScript();  Need to implement this as grid creation.  Temporarily removed.
+			}
+			
+			player.update(time);
+			
+			//Update ghosts
+			ArrayList<GhostAvatar> ghosts = gameClient.getGhostAvatars();
+			for(int i = 0; i < ghosts.size(); i++)
+			{
+				ghosts.get(i).update(time);
+			}
+			
+			// regular update
+			super.update(time);
 		}
 
 }
