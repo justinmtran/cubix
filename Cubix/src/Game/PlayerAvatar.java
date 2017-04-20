@@ -39,17 +39,18 @@ public class PlayerAvatar extends Cube{
 	
 	public void update(float time)
 	{
+		float rotSpeed = 0.50f;
 		if(isMoving)
 		{
 			float rotationAmt;
-			if(rotated + time/4 >= 90)
+			if(rotated + time*rotSpeed >= 90)
 			{
 				rotationAmt = -rotated+90;
 				isMoving = false;
 			}
 			else
 			{
-				rotationAmt = time/4;
+				rotationAmt = time*rotSpeed;
 			}
 			rotated += rotationAmt;
 

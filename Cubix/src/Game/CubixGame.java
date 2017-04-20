@@ -227,6 +227,7 @@ import sage.texture.TextureManager;
 			// apply SAGE built-in 3P camera controller
 			camController = new ThirdPersonCameraController(cam, avatar, im, mouseName);
 			
+			
 			// initialize A key
 			IAction moveA = new MoveLeftKey(player, gameClient, imgTerrain);
 			im.associateAction (
@@ -378,5 +379,5 @@ import sage.texture.TextureManager;
 				System.out.println("Null pointer exception reading " + scriptFile + e3);
 			}
 		}
-
+		
 }
