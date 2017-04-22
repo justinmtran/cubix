@@ -1,6 +1,7 @@
 package Game;
 
 import GameEngine.GameClient;
+import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
 import sage.scene.shape.Cube;
@@ -12,12 +13,20 @@ public class PlayerAvatar extends Cube{
 	private float rotated;
 	private TerrainBlock terrain; 
 	GameClient client;
+	private Vector3D[] faces = new Vector3D[6];
 	
 	public PlayerAvatar(TerrainBlock t, GameClient c)
 	{
 		terrain = t;
 		client = c;
 		updateVerticalPosition();
+		
+		faces[0] = new Vector3D(0,0,-1); //front
+		faces[1] = new Vector3D(0,0,1); //back
+		faces[2] = new Vector3D(-1,0,0); //left
+		faces[3] = new Vector3D(1,0,0); //right
+		faces[4] = new Vector3D(0,1,0); //up
+		faces[5] = new Vector3D(0,-1,0); //down
 	}
 	
 	public void move(Vector3D rotAxis, Vector3D trans)
@@ -33,6 +42,40 @@ public class PlayerAvatar extends Cube{
 			{
 				client.sendMoveMessage(rotAxis, trans);
 			}
+			Matrix3D rotationMatrix = new Matrix3D();
+			rotationMatrix.rotate(-90, rotAxis);
+			
+			for(int i = 0; i<6; i++)
+			{
+				faces[i] = faces[i].mult(rotationMatrix).normalize();
+			}
+			String bottomColor;
+			switch(getBottomFace())
+			{
+			case 0:
+				bottomColor = "BLUE";
+				break;
+			case 1:
+				bottomColor = "RED";
+				break;
+			case 2: 
+				bottomColor = "LIGHTBLUE";
+				break;
+			case 3:
+				bottomColor = "GREEN";
+				break;
+			case 4:
+				bottomColor = "PURPLE";
+				break;
+			case 5:
+				bottomColor = "YELLOW";
+				break;
+			default:
+				bottomColor = "ERROR";
+				break;			
+			}
+						
+			System.out.println("Bottom Face: " + bottomColor);
 		}
 	}
 	
@@ -82,5 +125,20 @@ public class PlayerAvatar extends Cube{
 		 }
 		 
 	 }
+	
+	public int getBottomFace()
+	{
+		Point3D center = new Point3D(0,0,0);
+		for(int i = 0; i < 6; i++)
+		{
+			faces[i] = new Vector3D(Math.round(faces[i].getX()), Math.round(faces[i].getY()), Math.round(faces[i].getZ()));
+			if(faces[i].minus(new Vector3D(0,-1,0)).equals(new Vector3D(center)))
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
 }
 
