@@ -1,5 +1,6 @@
 package GameEngine;
 
+import Game.PlayerAvatar;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
@@ -8,12 +9,12 @@ import sage.scene.SceneNode;
 import sage.terrain.TerrainBlock;
 
 public class MoveUpKey extends AbstractInputAction {
-	private SceneNode avatar;
+	private PlayerAvatar avatar;
 	private GameClient client;
 	private float speed = 0.01f;
 	private TerrainBlock terrain; 
 	
-	public MoveUpKey(SceneNode n, GameClient c, TerrainBlock t) {
+	public MoveUpKey(PlayerAvatar n, GameClient c, TerrainBlock t) {
 		avatar = n;
 		client = c;
 		terrain = t; 
@@ -21,16 +22,19 @@ public class MoveUpKey extends AbstractInputAction {
 
 	@Override
 	public void performAction(float time, net.java.games.input.Event e) {
-		Matrix3D rot = avatar.getLocalRotation();
-		Vector3D dir = new Vector3D(0, 0, 1);
-		dir = dir.mult(rot);
-		dir.scale(-(double) (speed * time));
-		avatar.translate((float) dir.getX(), (float) dir.getY(), (float) dir.getZ());
+		Matrix3D rot = avatar.getWorldRotation();
+		//Vector3D dir = new Vector3D(0, 0, 1);
+		//dir = dir.mult(rot);
+		//dir.scale(-(double) (speed * time));
+		//avatar.translate((float) dir.getX(), (float) dir.getY(), (float) dir.getZ());
 		
-		client.sendMoveMessage(dir);
+		//client.sendMoveMessage(dir);
+		
+
+		avatar.move(new Vector3D(1,0,0), new Vector3D(0,0,1));
 		
 		// update avatar's Y position with respect with terrain. 
-		updateVerticalPosition(); 
+		//updateVerticalPosition(); 
 	}
 	
 

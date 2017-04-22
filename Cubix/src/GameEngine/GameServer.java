@@ -66,7 +66,7 @@ public class GameServer extends GameConnectionServer<UUID>{
 			if(msgTokens[0].compareTo("move")== 0)
 			{
 				UUID clientID = UUID.fromString(msgTokens[1]);
-				String[] pos = {msgTokens[2], msgTokens[3], msgTokens[4]};
+				String[] pos = {msgTokens[2], msgTokens[3], msgTokens[4], msgTokens[5], msgTokens[6], msgTokens[7] };
 				sendMoveMessages(clientID, pos);
 			}
 				
@@ -133,6 +133,9 @@ public class GameServer extends GameConnectionServer<UUID>{
 			message += "," + position[0];
 			message += "," + position[1];
 			message += "," + position[2];
+			message += "," + position[3];
+			message += "," + position[4];
+			message += "," + position[5];
 			forwardPacketToAll(message, clientID);
 		}
 		catch(IOException e) {e.printStackTrace();}
