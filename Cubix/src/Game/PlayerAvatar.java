@@ -1,6 +1,7 @@
 package Game;
 
 import GameEngine.GameClient;
+import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
 import sage.scene.shape.Cube;
@@ -12,12 +13,20 @@ public class PlayerAvatar extends Cube{
 	private float rotated;
 	private TerrainBlock terrain; 
 	GameClient client;
+	private Vector3D[] faces = new Vector3D[6];
 	
 	public PlayerAvatar(TerrainBlock t, GameClient c)
 	{
 		terrain = t;
 		client = c;
 		updateVerticalPosition();
+		
+		faces[0] = new Vector3D(0,0,-1); //front
+		faces[1] = new Vector3D(0,0,1); //back
+		faces[2] = new Vector3D(-1,0,0); //left
+		faces[3] = new Vector3D(1,0,0); //right
+		faces[4] = new Vector3D(0,1,0); //up
+		faces[5] = new Vector3D(0,-1,0); //down
 	}
 	
 	public void move(Vector3D rotAxis, Vector3D trans)
@@ -33,6 +42,16 @@ public class PlayerAvatar extends Cube{
 			{
 				client.sendMoveMessage(rotAxis, trans);
 			}
+			Matrix3D rotationMatrix = new Matrix3D();
+			rotationMatrix.rotate(90, rot);
+			
+			for(int i = 0; i<6; i++)
+			{
+				faces[i] = faces[i].mult(rotationMatrix);
+			}
+			faces[0] = faces[0].mult(rotationMatrix);
+			
+			System.out.println("Down Face: " + getDownFace());
 		}
 	}
 	
@@ -82,5 +101,20 @@ public class PlayerAvatar extends Cube{
 		 }
 		 
 	 }
+	
+	public int getDownFace()
+	{
+		Point3D center = new Point3D(0,0,0);
+		for(int i = 0; i < 6; i++)
+		{
+			faces[i] = new Vector3D(Math.round(faces[i].getX()), Math.round(faces[i].getY()), Math.round(faces[i].getZ()));
+			if(faces[i].minus(new Vector3D(0,-1,0)).equals(new Vector3D(center)))
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
 }
 

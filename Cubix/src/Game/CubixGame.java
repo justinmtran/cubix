@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,6 +28,7 @@ import GameEngine.MoveUpKey;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
+import graphicslib3D.Vertex3D;
 import sage.app.BaseGame;
 import sage.camera.ICamera;
 import sage.display.IDisplaySystem;
@@ -51,7 +53,7 @@ import sage.texture.TextureManager;
 
 	public class CubixGame extends BaseGame{
 		// Constants
-		private final int MAX_SNOW = 45;
+		private final int MAX_SNOW = 20;
 		
 		// Mechanical Objects
 		private CubixCameraController camController; 
@@ -79,6 +81,8 @@ import sage.texture.TextureManager;
 		private long fileLastModifiedTime;
 		private Sphere[] snow; 
 		private float windTimer; 
+		
+				
 		
 		//public CubixGame(String serverAddress, int serverPort)
 		public CubixGame()
@@ -262,25 +266,25 @@ import sage.texture.TextureManager;
 			IAction moveA = new MoveLeftKey(player, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.A,
-					 moveA, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+					 moveA, IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 			
 			// initialize D key
 			IAction moveD = new MoveRightKey(player, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.D,
-					 moveD, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+					 moveD, IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 			
 			// initialize W key
 			IAction moveW = new MoveUpKey(player, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.W,
-					 moveW, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+					 moveW, IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 			
 			// initialize S key
 			IAction moveS = new MoveDownKey(player, gameClient, imgTerrain);
 			im.associateAction (
 					 kbName, net.java.games.input.Component.Identifier.Key.S,
-					 moveS, IInputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+					 moveS, IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		}
 
 		public void setIsConnected(boolean b) {
