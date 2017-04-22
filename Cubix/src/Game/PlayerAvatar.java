@@ -43,15 +43,39 @@ public class PlayerAvatar extends Cube{
 				client.sendMoveMessage(rotAxis, trans);
 			}
 			Matrix3D rotationMatrix = new Matrix3D();
-			rotationMatrix.rotate(90, rot);
+			rotationMatrix.rotate(-90, rotAxis);
 			
 			for(int i = 0; i<6; i++)
 			{
-				faces[i] = faces[i].mult(rotationMatrix);
+				faces[i] = faces[i].mult(rotationMatrix).normalize();
 			}
-			faces[0] = faces[0].mult(rotationMatrix);
-			
-			System.out.println("Down Face: " + getDownFace());
+			String bottomColor;
+			switch(getBottomFace())
+			{
+			case 0:
+				bottomColor = "BLUE";
+				break;
+			case 1:
+				bottomColor = "RED";
+				break;
+			case 2: 
+				bottomColor = "LIGHTBLUE";
+				break;
+			case 3:
+				bottomColor = "GREEN";
+				break;
+			case 4:
+				bottomColor = "PURPLE";
+				break;
+			case 5:
+				bottomColor = "YELLOW";
+				break;
+			default:
+				bottomColor = "ERROR";
+				break;			
+			}
+						
+			System.out.println("Bottom Face: " + bottomColor);
 		}
 	}
 	
@@ -102,7 +126,7 @@ public class PlayerAvatar extends Cube{
 		 
 	 }
 	
-	public int getDownFace()
+	public int getBottomFace()
 	{
 		Point3D center = new Point3D(0,0,0);
 		for(int i = 0; i < 6; i++)
