@@ -31,6 +31,12 @@ import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
 import graphicslib3D.Vertex3D;
 import sage.app.BaseGame;
+import sage.audio.AudioManagerFactory;
+import sage.audio.AudioResource;
+import sage.audio.AudioResourceType;
+import sage.audio.IAudioManager;
+import sage.audio.Sound;
+import sage.audio.SoundType;
 import sage.camera.ICamera;
 import sage.display.IDisplaySystem;
 import sage.input.IInputManager;
@@ -73,6 +79,10 @@ import sage.texture.Texture.ApplyMode;
 		private int serverPort;
 		private ProtocolType serverProtocol;
 		private GameClient gameClient;
+		
+		IAudioManager audioMgr;
+		Sound ghostSound;
+		AudioResource resource1;
 		
 		// Texture Objects
 		private TerrainBlock imgTerrain;
@@ -135,6 +145,7 @@ import sage.texture.Texture.ApplyMode;
 			initNetwork();
 			createPlayer(); 
 			initInput(); 
+			initAudio();
 		}
 		
 		private void createPlayer(){
@@ -219,6 +230,7 @@ import sage.texture.Texture.ApplyMode;
 			//Add lighthouse
 			lighthouse = getLighthouse();
 			lighthouse.translate(20, 0, 20);
+			lighthouse.updateGeometricState(0, true);
 			addGameWorldObject(lighthouse);
 			Iterator<SceneNode> itr = lighthouse.getChildren();
 			while(itr.hasNext())
@@ -226,6 +238,42 @@ import sage.texture.Texture.ApplyMode;
 				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
 				mesh.startAnimation("Rotate");
 			}
+		}
+		
+		public void initAudio()
+		{
+			audioMgr = AudioManagerFactory.createAudioManager("sage.audio.joal.JOALAudioManager");
+			if(!audioMgr.initialize())
+			{
+				System.out.println("Audio Manager failed t initialize!");;
+				return;				
+			}
+			
+			resource1 = audioMgr.createAudioResource("sounds/ghost.wav", AudioResourceType.AUDIO_SAMPLE);
+			
+			ghostSound = new Sound(resource1, SoundType.SOUND_EFFECT, 75, true);
+			ghostSound.initialize(audioMgr);
+			ghostSound.setMaxDistance(50f);
+			ghostSound.setMinDistance(5f);
+			ghostSound.setRollOff(5.0f);
+			ghostSound.setLocation(new Point3D(lighthouse.getWorldTranslation().getCol(3)));
+			setEarParameters();
+			ghostSound.play();
+		}
+		
+		public void releaseSounds()
+		{
+			ghostSound.release(audioMgr);
+			resource1.unload();
+			audioMgr.shutdown();
+		}
+		
+		public void setEarParameters()
+		{
+			
+			
+			audioMgr.getEar().setLocation(new Point3D(player.getWorldTranslation().getCol(3)));
+			audioMgr.getEar().setOrientation(cam.getViewDirection(), new Vector3D(0,1,0));
 		}
 		
 		private Group getLighthouse()
@@ -328,6 +376,7 @@ import sage.texture.Texture.ApplyMode;
 		protected void shutdown()
 		{
 			super.shutdown();
+			releaseSounds();
 			if(gameClient != null)
 			{
 				gameClient.sendByeMessage();
@@ -439,6 +488,9 @@ import sage.texture.Texture.ApplyMode;
 			
 			// update 3p camera
 			camController.update(time);
+			
+			//update sounds, ear
+			setEarParameters();
 			
 			// update skybox position
 			Point3D camLoc = cam.getLocation();
