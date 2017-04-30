@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -35,11 +36,15 @@ import sage.display.IDisplaySystem;
 import sage.input.IInputManager;
 import sage.input.action.IAction;
 import sage.model.loader.OBJLoader;
+import sage.model.loader.ogreXML.OgreXMLParser;
 import sage.networking.IGameConnection.ProtocolType;
 import sage.physics.IPhysicsEngine;
 import sage.physics.PhysicsEngineFactory;
 import sage.renderer.IRenderer;
+import sage.scene.Group;
+import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
+import sage.scene.SceneNode.RENDER_MODE;
 import sage.scene.TriMesh;
 import sage.scene.shape.Line;
 import sage.scene.shape.Sphere;
@@ -50,10 +55,11 @@ import sage.terrain.ImageBasedHeightMap;
 import sage.terrain.TerrainBlock;
 import sage.texture.Texture;
 import sage.texture.TextureManager;
+import sage.texture.Texture.ApplyMode;
 
 	public class CubixGame extends BaseGame{
 		// Constants
-		private final int MAX_SNOW = 20;
+		private final int MAX_SNOW = 100;
 		
 		// Mechanical Objects
 		private CubixCameraController camController; 
@@ -82,6 +88,8 @@ import sage.texture.TextureManager;
 		private Sphere[] snow; 
 		private float windTimer; 
 		
+		//Animated Objects
+		private Group lighthouse;
 				
 		
 		//public CubixGame(String serverAddress, int serverPort)
@@ -208,15 +216,37 @@ import sage.texture.TextureManager;
 			addGameWorldObject(yAxis);
 			addGameWorldObject(zAxis);
 			
-			//Add Lighthouse
-			OBJLoader loader = new OBJLoader();
-			TriMesh lighthouse = loader.loadModel("objects/LighthouseUV.obj");
-			lighthouse.updateLocalBound();
+			//Add lighthouse
+			lighthouse = getLighthouse();
 			lighthouse.translate(20, 0, 20);
-			Texture lighthouseTexture = TextureManager.loadTexture2D("images/textures/objects/LighthouseUV.png");
-			lighthouse.setTexture(lighthouseTexture);
-			lighthouse.translate(0, 3, 0);
 			addGameWorldObject(lighthouse);
+			Iterator<SceneNode> itr = lighthouse.getChildren();
+			while(itr.hasNext())
+			{
+				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
+				mesh.startAnimation("Rotate");
+			}
+		}
+		
+		private Group getLighthouse()
+		{
+			Group model = null;
+			OgreXMLParser loader = new OgreXMLParser();
+			try
+			{
+				String slash = File.separator;
+				model = loader.loadModel("objects" + slash + "Lighthouse.mesh.xml",
+										"materials" + slash + "Lighthouse.material",
+										"objects" + slash + "Lighthouse.skeleton.xml", "images" + slash + "textures" + slash + "objects" + slash, ApplyMode.Replace);
+				model.updateGeometricState(0, true);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
+			return model;
 		}
 		
 		private void initTerrain() { 
@@ -398,7 +428,7 @@ import sage.texture.TextureManager;
 			}
 			// WIND PHYSICS
 			Matrix3D mat;
-			pe.update(20.0f);
+			pe.update(time);
 			for (SceneNode s : getGameWorld()) {
 				if (s.getPhysicsObject() != null) {
 					mat = new Matrix3D(s.getPhysicsObject().getTransform());
@@ -438,6 +468,14 @@ import sage.texture.TextureManager;
 			for(int i = 0; i < ghosts.size(); i++)
 			{
 				ghosts.get(i).update(time);
+			}
+			
+			//Update animations
+			Iterator<SceneNode> itr = lighthouse.getChildren();
+			while(itr.hasNext())
+			{
+				Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
+				submesh.updateAnimation(time);
 			}
 			
 			// regular update
