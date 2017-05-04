@@ -99,7 +99,7 @@ import sage.texture.Texture.ApplyMode;
 		private float windTimer; 
 		
 		//Animated Objects
-		private Group lighthouse;
+		private Group lighthouse, ghost;
 				
 		
 		//public CubixGame(String serverAddress, int serverPort)
@@ -238,6 +238,19 @@ import sage.texture.Texture.ApplyMode;
 				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
 				mesh.startAnimation("Rotate");
 			}
+			
+			//Add ghost
+			ghost = getGhost();
+			ghost.translate(10, 0, 10);
+			ghost.updateGeometricState(0, true);
+			addGameWorldObject(ghost);
+			itr = ghost.getChildren();
+			while(itr.hasNext())
+			{
+				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
+				mesh.scale(.5f, .5f, .5f);
+				mesh.startAnimation("Ghost-Default");
+			}
 		}
 		
 		public void initAudio()
@@ -245,7 +258,7 @@ import sage.texture.Texture.ApplyMode;
 			audioMgr = AudioManagerFactory.createAudioManager("sage.audio.joal.JOALAudioManager");
 			if(!audioMgr.initialize())
 			{
-				System.out.println("Audio Manager failed t initialize!");;
+				System.out.println("Audio Manager failed to initialize!");;
 				return;				
 			}
 			
@@ -286,6 +299,27 @@ import sage.texture.Texture.ApplyMode;
 				model = loader.loadModel("objects" + slash + "Lighthouse.mesh.xml",
 										"materials" + slash + "Lighthouse.material",
 										"objects" + slash + "Lighthouse.skeleton.xml", "images" + slash + "textures" + slash + "objects" + slash, ApplyMode.Replace);
+				model.updateGeometricState(0, true);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
+			return model;
+		}
+		
+		private Group getGhost()
+		{
+			Group model = null;
+			OgreXMLParser loader = new OgreXMLParser();
+			try
+			{
+				String slash = File.separator;
+				model = loader.loadModel("objects" + slash + "ghost.mesh.xml",
+										"materials" + slash + "ghost.material",
+										"objects" + slash + "ghost.skeleton.xml", "images" + slash + "textures" + slash + "objects" + slash, ApplyMode.Replace);
 				model.updateGeometricState(0, true);
 			}
 			catch(Exception e)
@@ -524,6 +558,13 @@ import sage.texture.Texture.ApplyMode;
 			
 			//Update animations
 			Iterator<SceneNode> itr = lighthouse.getChildren();
+			while(itr.hasNext())
+			{
+				Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
+				submesh.updateAnimation(time);
+			}
+			
+			itr = ghost.getChildren();
 			while(itr.hasNext())
 			{
 				Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
