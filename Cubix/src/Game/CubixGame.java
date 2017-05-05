@@ -65,7 +65,7 @@ import sage.texture.Texture.ApplyMode;
 
 	public class CubixGame extends BaseGame{
 		// Constants
-		private final int MAX_SNOW = 100;
+		private final int MAX_SNOW = 40;
 		
 		// Mechanical Objects
 		private CubixCameraController camController; 
@@ -97,10 +97,10 @@ import sage.texture.Texture.ApplyMode;
 		private long fileLastModifiedTime;
 		private Sphere[] snow; 
 		private float windTimer; 
+		private NPCGhostController ghostController;
 		
 		//Animated Objects
 		private Group lighthouse, ghost;
-				
 		
 		//public CubixGame(String serverAddress, int serverPort)
 		public CubixGame()
@@ -144,6 +144,7 @@ import sage.texture.Texture.ApplyMode;
 			
 			initNetwork();
 			createPlayer(); 
+			ghostController = new NPCGhostController(ghost, player);
 			initInput(); 
 			initAudio();
 		}
@@ -251,6 +252,8 @@ import sage.texture.Texture.ApplyMode;
 				mesh.scale(.5f, .5f, .5f);
 				mesh.startAnimation("Ghost-Default");
 			}
+			
+			
 		}
 		
 		public void initAudio()
@@ -269,7 +272,7 @@ import sage.texture.Texture.ApplyMode;
 			ghostSound.setMaxDistance(50f);
 			ghostSound.setMinDistance(5f);
 			ghostSound.setRollOff(5.0f);
-			ghostSound.setLocation(new Point3D(lighthouse.getWorldTranslation().getCol(3)));
+			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
 			setEarParameters();
 			ghostSound.play();
 		}
@@ -525,6 +528,8 @@ import sage.texture.Texture.ApplyMode;
 			
 			//update sounds, ear
 			setEarParameters();
+			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
+			
 			
 			// update skybox position
 			Point3D camLoc = cam.getLocation();
@@ -570,6 +575,8 @@ import sage.texture.Texture.ApplyMode;
 				Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
 				submesh.updateAnimation(time);
 			}
+			
+			ghostController.npcLoop();
 			
 			// regular update
 			super.update(time);
