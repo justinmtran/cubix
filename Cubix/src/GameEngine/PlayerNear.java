@@ -21,7 +21,7 @@ public class PlayerNear extends BTCondition
 
 		Vector3D location = ghost.getLocalTranslation().getCol(3); 
 		Vector3D location2 = location.minus(player.getLocalTranslation().getCol(3));
-		if(location2.magnitude() < 20)
+		if(location2.magnitude() < 15)
 		{
 			return true;
 		}

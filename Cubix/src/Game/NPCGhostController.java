@@ -18,6 +18,7 @@ public class NPCGhostController {
 	private boolean chase;
 	private float lastThinkUpdateTime;
 	private float lastTickUpdateTime;
+	private int speed = 2;
 	
 	public NPCGhostController(Group g, PlayerAvatar p)
 	{
@@ -46,7 +47,7 @@ public class NPCGhostController {
 			Vector3D ghostLocation = ghost.getLocalTranslation().getCol(3);
 			Vector3D playerLocation = player.getLocalTranslation().getCol(3);
 			Vector3D direction = playerLocation.minus(ghostLocation).normalize();
-			ghost.translate((float)direction.getX()*time/1000, 0, (float)direction.getZ()*time/1000);
+			ghost.translate(speed*(float)direction.getX()*time/1000, 0, speed*(float)direction.getZ()*time/1000);
 			Matrix3D test = new Matrix3D();
 			test.rotateY(Math.toDegrees(Math.atan2(direction.getX(), direction.getZ())));
 			ghost.setLocalRotation(test);
@@ -54,25 +55,29 @@ public class NPCGhostController {
 		
 	}
 	
-	public void npcLoop()
+	public void npcLoop(float time)
 	{
 		//while(true)
 		{
-			long currentTime = System.nanoTime();
-			float elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime)/(1000000.0f);
-			float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime)/(1000000.0f);
+			//long currentTime = System.nanoTime();
+			//float elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime)/(1000000.0f);
+			//float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime)/(1000000.0f);
+			lastThinkUpdateTime += time;
+			lastTickUpdateTime += time;
 			
-			if(elapsedTickMilliSecs >= 50f)
+			if(lastTickUpdateTime > 50f)
 			{
-				lastTickUpdateTime = currentTime;
-				this.update(elapsedTickMilliSecs);
+				//lastTickUpdateTime = currentTime;
+				this.update(lastTickUpdateTime);
+				lastTickUpdateTime = 0;
 			}
 			
-			if(elapsedThinkMilliSecs >= 500.0f)
+			if(lastThinkUpdateTime > 500f)
 			{
 				chase = false;
-				lastThinkUpdateTime = currentTime;
-				bt.update(elapsedThinkMilliSecs);
+				//lastThinkUpdateTime = currentTime;
+				bt.update(lastThinkUpdateTime);
+				lastThinkUpdateTime = 0;
 			}
 			
 

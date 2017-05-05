@@ -576,7 +576,7 @@ import sage.texture.Texture.ApplyMode;
 				submesh.updateAnimation(time);
 			}
 			
-			ghostController.npcLoop();
+			ghostController.npcLoop(time);
 			
 			// regular update
 			super.update(time);
