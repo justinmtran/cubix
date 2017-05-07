@@ -242,7 +242,7 @@ import sage.texture.Texture.ApplyMode;
 			
 			//Add ghost
 			ghost = getGhost();
-			ghost.translate(10, 0, 10);
+			ghost.translate(10, 5, 10);
 			ghost.updateGeometricState(0, true);
 			addGameWorldObject(ghost);
 			itr = ghost.getChildren();
@@ -250,7 +250,7 @@ import sage.texture.Texture.ApplyMode;
 			{
 				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
 				mesh.scale(.5f, .5f, .5f);
-				mesh.startAnimation("Ghost-Default");
+				mesh.startAnimation("Default");
 			}
 			
 			
