@@ -250,7 +250,7 @@ import sage.texture.Texture.ApplyMode;
 			{
 				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
 				mesh.scale(.5f, .5f, .5f);
-				mesh.startAnimation("Default");
+				mesh.startAnimation("Move");
 			}
 			
 			
