@@ -1,6 +1,9 @@
 package Game;
 
+import java.util.Iterator;
+
 import GameEngine.ChasePlayer;
+import GameEngine.GhostDefault;
 import GameEngine.PlayerNear;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Vector3D;
@@ -9,6 +12,8 @@ import sage.ai.behaviortrees.BTCondition;
 import sage.ai.behaviortrees.BTSequence;
 import sage.ai.behaviortrees.BehaviorTree;
 import sage.scene.Group;
+import sage.scene.Model3DTriMesh;
+import sage.scene.SceneNode;
 
 public class NPCGhostController {
 	private PlayerAvatar player;
@@ -19,6 +24,7 @@ public class NPCGhostController {
 	private float lastThinkUpdateTime;
 	private float lastTickUpdateTime;
 	private int speed = 2;
+	private String currentAnimation = "";
 	
 	public NPCGhostController(Group g, PlayerAvatar p)
 	{
@@ -33,6 +39,9 @@ public class NPCGhostController {
 		bt.insertAtRoot(new BTSequence(10));
 		bt.insert(10, new PlayerNear(ghost, player, false));
 		bt.insert(10, new ChasePlayer(this));
+		bt.insertAtRoot(new BTSequence(20));
+		bt.insert(20, new GhostDefault(this));
+		
 	}
 	
 	public void setChase(boolean b)
@@ -82,6 +91,22 @@ public class NPCGhostController {
 			
 
 		}
+	}
+	
+	public void setAnimation(String name)
+	{
+		if(!currentAnimation.equals(name))
+		{
+			Iterator<SceneNode> itr = ghost.getChildren();
+			while(itr.hasNext())
+			{
+				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
+				mesh.startAnimation(name);
+			}
+			currentAnimation = name;
+			
+		}
+
 	}
 }
 
