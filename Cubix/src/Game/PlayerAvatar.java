@@ -7,7 +7,6 @@ import graphicslib3D.Vector3D;
 import sage.model.loader.OBJLoader;
 import sage.scene.Group;
 import sage.scene.TriMesh;
-import sage.scene.shape.Cube;
 import sage.terrain.TerrainBlock;
 import sage.texture.Texture;
 import sage.texture.TextureManager;
@@ -20,7 +19,7 @@ public class PlayerAvatar extends Group{
 	GameClient client;
 	private Vector3D[] faces = new Vector3D[6];
 	
-	public PlayerAvatar(TerrainBlock t, GameClient c)
+	public PlayerAvatar(String textureName, TerrainBlock t, GameClient c)
 	{
 		terrain = t;
 		client = c;
@@ -35,11 +34,11 @@ public class PlayerAvatar extends Group{
 		
 		OBJLoader loader = new OBJLoader();
 		TriMesh cube = loader.loadModel("objects/Cube.obj");
-		cube.updateLocalBound();
-		Texture cubeTexture = TextureManager.loadTexture2D("images/textures/objects/Cube.png");
+
+		Texture cubeTexture = TextureManager.loadTexture2D(textureName);
 		cubeTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 		cube.setTexture(cubeTexture);
-		
+		cube.updateLocalBound();
 		this.addChild(cube);
 	}
 	
@@ -142,11 +141,10 @@ public class PlayerAvatar extends Group{
 	
 	public int getBottomFace()
 	{
-		Point3D center = new Point3D(0,0,0);
 		for(int i = 0; i < 6; i++)
 		{
 			faces[i] = new Vector3D(Math.round(faces[i].getX()), Math.round(faces[i].getY()), Math.round(faces[i].getZ()));
-			if(faces[i].minus(new Vector3D(0,-1,0)).equals(new Vector3D(center)))
+			if(faces[i].equals(new Vector3D(0,-1,0)))
 			{
 				return i;
 			}

@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -79,6 +78,7 @@ import sage.texture.Texture.ApplyMode;
 		private int serverPort;
 		private ProtocolType serverProtocol;
 		private GameClient gameClient;
+		private String playerTextureName;
 		
 		IAudioManager audioMgr;
 		Sound ghostSound;
@@ -150,9 +150,10 @@ import sage.texture.Texture.ApplyMode;
 		}
 		
 		private void createPlayer(){
-			player = new PlayerAvatar(imgTerrain, gameClient);
+			playerTextureName = "images/textures/objects/Cube.png";
+			player = new PlayerAvatar(playerTextureName, imgTerrain, gameClient);
 			player.translate(3, 0, 3);
-			player.rotate(180, new Vector3D(0,1,0));
+			//player.rotate(180, new Vector3D(0,1,0));
 			addGameWorldObject(player);
 		}
 		
@@ -438,6 +439,11 @@ import sage.texture.Texture.ApplyMode;
 			removeGameWorldObject(ghost);
 		}
 		
+		public String getPlayerTextureName()
+		{
+			return playerTextureName;
+		}
+		
 		private void runScript()
 		{
 			try
@@ -553,13 +559,18 @@ import sage.texture.Texture.ApplyMode;
 			
 			player.update(time);
 			
-			//Update ghosts
-			ArrayList<GhostAvatar> ghosts = gameClient.getGhostAvatars();
-			for(int i = 0; i < ghosts.size(); i++)
-			{
-				ghosts.get(i).update(time);
-			}
 			
+			//Update ghosts
+			if(gameClient != null)
+			{
+				ArrayList<GhostAvatar> ghosts = gameClient.getGhostAvatars();
+				for(int i = 0; i < ghosts.size(); i++)
+				{
+					ghosts.get(i).update(time);
+				}
+					
+			}
+
 			//Update animations
 			Iterator<SceneNode> itr = lighthouse.getChildren();
 			while(itr.hasNext())

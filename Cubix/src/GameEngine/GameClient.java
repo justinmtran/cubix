@@ -41,7 +41,7 @@ public class GameClient extends GameConnectionClient{
 			if(msgTokens[1].compareTo("success")== 0)
 			{
 				game.setIsConnected(true);
-				sendCreateMessage(game.getPosition());
+				sendCreateMessage(game.getPosition(), game.getPlayerTextureName());
 			}
 			if(msgTokens[1].compareTo("failure")== 0)
 			{
@@ -62,7 +62,8 @@ public class GameClient extends GameConnectionClient{
 		{
 			UUID ghostID = UUID.fromString(msgTokens[1]);
 			Vector3D ghostPosition = new Vector3D(Double.parseDouble(msgTokens[2]), Double.parseDouble(msgTokens[3]), Double.parseDouble(msgTokens[4]));
-			createGhostAvatar(ghostID, ghostPosition);
+			String textureName = msgTokens[5];
+			createGhostAvatar(ghostID, ghostPosition, textureName);
 			
 			System.out.println("DSFR Received by server");
 		}
@@ -71,7 +72,8 @@ public class GameClient extends GameConnectionClient{
 		{
 			UUID ghostID = UUID.fromString(msgTokens[1]);
 			Vector3D ghostPosition = new Vector3D(Double.parseDouble(msgTokens[2]), Double.parseDouble(msgTokens[3]), Double.parseDouble(msgTokens[4]));
-			createGhostAvatar(ghostID, ghostPosition);
+			String textureName = msgTokens[5];
+			createGhostAvatar(ghostID, ghostPosition, textureName);
 			
 			System.out.println("Create Received by server");
 			
@@ -81,7 +83,7 @@ public class GameClient extends GameConnectionClient{
 		{
 			UUID ghostID = UUID.fromString(msgTokens[1]);
 			Vector3D pos = game.getPosition();
-			sendDetailsForMessage(ghostID, pos);
+			sendDetailsForMessage(ghostID, pos, game.getPlayerTextureName());
 			
 			System.out.println("WSDS Received by server");
 
@@ -97,12 +99,13 @@ public class GameClient extends GameConnectionClient{
 		}
 	}
 	
-	public void sendCreateMessage(Vector3D pos)
+	public void sendCreateMessage(Vector3D pos, String textureName)
 	{
 		try
 		{
 			String message = new String("create," + id.toString());
 			message += "," + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+			message += "," + textureName;
 			sendPacket(message);
 		}
 		catch(IOException e) {e.printStackTrace();}
@@ -131,12 +134,13 @@ public class GameClient extends GameConnectionClient{
 		
 	}
 	
-	public void sendDetailsForMessage(UUID remid, Vector3D pos)
+	public void sendDetailsForMessage(UUID remid, Vector3D pos, String textureName)
 	{
 		try
 		{
 			String message = new String("dsfr," + remid.toString() + "," + id.toString());
 			message += "," + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+			message += "," + textureName;
 			sendPacket(message);
 		}
 		catch(IOException e) {e.printStackTrace();}
@@ -176,9 +180,9 @@ public class GameClient extends GameConnectionClient{
 	}
 	
 	
-	public void createGhostAvatar(UUID id, Vector3D position)
+	public void createGhostAvatar(UUID id, Vector3D position, String textureName)
 	{
-		GhostAvatar newGhost = new GhostAvatar(position, id, terrain);
+		GhostAvatar newGhost = new GhostAvatar(textureName, position, id, terrain);
 		ghostAvatars.add(newGhost);
 		game.addGhost(newGhost);
 		newGhost.updateVerticalPosition();

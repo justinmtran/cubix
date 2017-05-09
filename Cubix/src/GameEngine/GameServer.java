@@ -51,7 +51,8 @@ public class GameServer extends GameConnectionServer<UUID>{
 			{
 				UUID clientID = UUID.fromString(msgTokens[1]);
 				String[] pos = {msgTokens[2], msgTokens[3], msgTokens[4]};
-				sendCreateMessages(clientID, pos);
+				String textureName = msgTokens[5];
+				sendCreateMessages(clientID, pos, textureName);
 				sendWantsDetailsMessages(clientID);
 			}
 
@@ -60,7 +61,8 @@ public class GameServer extends GameConnectionServer<UUID>{
 				UUID remoteID = UUID.fromString(msgTokens[1]);
 				UUID clientID = UUID.fromString(msgTokens[2]);
 				String[] pos = {msgTokens[3], msgTokens[4], msgTokens[5]};
-				sndDetailsMsg(clientID, remoteID, pos);
+				String textureName = msgTokens[6];
+				sndDetailsMsg(clientID, remoteID, pos, textureName);
 			}
 			
 			if(msgTokens[0].compareTo("move")== 0)
@@ -87,7 +89,7 @@ public class GameServer extends GameConnectionServer<UUID>{
 		catch(IOException e) {e.printStackTrace();}
 	}
 	
-	public void sendCreateMessages(UUID clientID, String[] position)
+	public void sendCreateMessages(UUID clientID, String[] position, String textureName)
 	{
 		try
 		{
@@ -95,13 +97,14 @@ public class GameServer extends GameConnectionServer<UUID>{
 			message += "," + position[0];
 			message += "," + position[1];
 			message += "," + position[2];
+			message += "," + textureName;
 			forwardPacketToAll(message, clientID);
 			System.out.println("Server Sending Create Messages");
 		}
 		catch(IOException e) {e.printStackTrace();}
 	}
 	
-	public void sndDetailsMsg(UUID clientID, UUID remoteID, String[] position)
+	public void sndDetailsMsg(UUID clientID, UUID remoteID, String[] position, String textureName)
 	{
 		try
 		{
@@ -109,6 +112,7 @@ public class GameServer extends GameConnectionServer<UUID>{
 			message += "," + position[0];
 			message += "," + position[1];
 			message += "," + position[2];
+			message += "," + textureName;
 			sendPacket(message, remoteID);
 			System.out.println("Server Sending Details Messages");
 		}
