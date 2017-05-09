@@ -162,7 +162,15 @@ import sage.texture.Texture.ApplyMode;
 		private void getOptions()
 		{
 			String[] textureNames = {"Cube", "Cube 2"};
-			JTextField serverIPField = new JTextField("127.0.0.1");
+			JTextField serverIPField;
+			try
+			{
+				serverIPField = new JTextField(InetAddress.getLocalHost().getHostAddress());
+			}
+			catch(Exception e)
+			{
+				serverIPField = new JTextField("");
+			}
 			JComboBox<String> playerTextureNameComboBox = new JComboBox<String>(textureNames);
 			JTextField serverPortField = new JTextField("6000");
 			JCheckBox isHostingCheckBox = new JCheckBox();
@@ -230,7 +238,7 @@ import sage.texture.Texture.ApplyMode;
 				{
 					try
 					{
-						new GameServer(6000);
+						new GameServer(serverPort);
 					}
 					catch(IOException e)
 					{
