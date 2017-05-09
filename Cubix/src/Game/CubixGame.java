@@ -16,7 +16,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 import GameEngine.CubixCameraController;
 import GameEngine.GameClient;
@@ -66,6 +69,8 @@ import sage.texture.Texture.ApplyMode;
 		// Constants
 		private final int MAX_SNOW = 40;
 		
+		
+		
 		// Mechanical Objects
 		private CubixCameraController camController; 
 		private ICamera cam; 
@@ -79,6 +84,8 @@ import sage.texture.Texture.ApplyMode;
 		private ProtocolType serverProtocol;
 		private GameClient gameClient;
 		private String playerTextureName;
+		private boolean isHosting;
+		private boolean isMultiplayer;
 		
 		IAudioManager audioMgr;
 		Sound ghostSound;
@@ -112,8 +119,8 @@ import sage.texture.Texture.ApplyMode;
 			//this.serverPort = serverPort;
 			//this.serverProtocol = ProtocolType.TCP;
 			
-			this.serverAddress = "127.0.0.1";
-			this.serverPort = 6000;
+			//this.serverAddress = "127.0.0.1";
+			//this.serverPort = 6000;
 			this.serverProtocol = ProtocolType.TCP;
 		}
 		
@@ -125,6 +132,8 @@ import sage.texture.Texture.ApplyMode;
 			// init Camera
 			cam = renderer.getCamera();
 			cam.setPerspectiveFrustum(60, 1, 1, 1000);
+			
+			getOptions();
 			
 			ScriptEngineManager factory = new ScriptEngineManager();
 			List<ScriptEngineFactory> list = factory.getEngineFactories();
@@ -142,6 +151,7 @@ import sage.texture.Texture.ApplyMode;
 			initPhysicsSystem(); 
 			createSagePhysicsWorld(); 
 			
+
 			initNetwork();
 			createPlayer(); 
 			ghostController = new NPCGhostController(ghost, player);
@@ -149,8 +159,47 @@ import sage.texture.Texture.ApplyMode;
 			initAudio();
 		}
 		
+		private void getOptions()
+		{
+			String[] textureNames = {"Cube", "Cube 2"};
+			JTextField serverIPField = new JTextField("127.0.0.1");
+			JComboBox<String> playerTextureNameComboBox = new JComboBox<String>(textureNames);
+			JTextField serverPortField = new JTextField("6000");
+			JCheckBox isHostingCheckBox = new JCheckBox();
+			JCheckBox isMultiPlayerCheckBox = new JCheckBox();
+			
+			Object[] message = {
+				"Cube Texture:", playerTextureNameComboBox,
+				"Multiplayer:", isMultiPlayerCheckBox,
+			    "Create Server:", isHostingCheckBox,
+			    "Server IP address:", serverIPField,
+			    "Server Port:", serverPortField,
+			};
+			int option = JOptionPane.showConfirmDialog(null, message, "Game Settings", JOptionPane.OK_CANCEL_OPTION);
+			if (option == JOptionPane.OK_OPTION)
+			{
+				try
+				{
+				    serverAddress = serverIPField.getText();
+				    serverPort = Integer.parseInt(serverPortField.getText());
+				    playerTextureName = (String)playerTextureNameComboBox.getSelectedItem();
+				    isHosting = isHostingCheckBox.isSelected();
+				    isMultiplayer = isMultiPlayerCheckBox.isSelected();
+				}
+				catch(Exception e)
+				{
+					JOptionPane.showMessageDialog(null, "Invalid Selection");
+					System.exit(1);
+				}
+			}
+			else
+			{
+				System.exit(1);
+			}
+		}
+		
 		private void createPlayer(){
-			playerTextureName = "images/textures/objects/Cube.png";
+			playerTextureName = "images/textures/objects/" + playerTextureName + ".png";
 			player = new PlayerAvatar(playerTextureName, imgTerrain, gameClient);
 			player.translate(3, 0, 3);
 			//player.rotate(180, new Vector3D(0,1,0));
@@ -175,8 +224,9 @@ import sage.texture.Texture.ApplyMode;
 		
 		private void initNetwork()
 		{
-			 int result = JOptionPane.showConfirmDialog(null, "Create server?","Server",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-				if(result == JOptionPane.YES_OPTION)
+			if(isMultiplayer)
+			{
+				if(isHosting)
 				{
 					try
 					{
@@ -187,16 +237,18 @@ import sage.texture.Texture.ApplyMode;
 						e.printStackTrace();
 					}
 				}
-			
-			try
-			{
-				gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this, imgTerrain);
-				System.out.println(gameClient);
+				
+				try
+				{
+					gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this, imgTerrain);
+					System.out.println(gameClient);
+				}
+				catch(UnknownHostException e) {e.printStackTrace();}
+				catch(IOException e) {e.printStackTrace();}
+				
+				if(gameClient != null) {gameClient.sendJoinMessage();}
 			}
-			catch(UnknownHostException e) {e.printStackTrace();}
-			catch(IOException e) {e.printStackTrace();}
-			
-			if(gameClient != null) {gameClient.sendJoinMessage();}
+
 		}
 		
 		private void createScene(){
