@@ -4,10 +4,15 @@ import GameEngine.GameClient;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
+import sage.model.loader.OBJLoader;
+import sage.scene.Group;
+import sage.scene.TriMesh;
 import sage.scene.shape.Cube;
 import sage.terrain.TerrainBlock;
+import sage.texture.Texture;
+import sage.texture.TextureManager;
 
-public class PlayerAvatar extends Cube{
+public class PlayerAvatar extends Group{
 	private boolean isMoving;
 	private Vector3D rot, translation;
 	private float rotated;
@@ -27,6 +32,15 @@ public class PlayerAvatar extends Cube{
 		faces[3] = new Vector3D(1,0,0); //right
 		faces[4] = new Vector3D(0,1,0); //up
 		faces[5] = new Vector3D(0,-1,0); //down
+		
+		OBJLoader loader = new OBJLoader();
+		TriMesh cube = loader.loadModel("objects/Cube.obj");
+		cube.updateLocalBound();
+		Texture cubeTexture = TextureManager.loadTexture2D("images/textures/objects/Cube.png");
+		cubeTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
+		cube.setTexture(cubeTexture);
+		
+		this.addChild(cube);
 	}
 	
 	public void move(Vector3D rotAxis, Vector3D trans)
@@ -53,22 +67,22 @@ public class PlayerAvatar extends Cube{
 			switch(getBottomFace())
 			{
 			case 0:
-				bottomColor = "BLUE";
-				break;
-			case 1:
-				bottomColor = "RED";
-				break;
-			case 2: 
-				bottomColor = "LIGHTBLUE";
-				break;
-			case 3:
 				bottomColor = "GREEN";
 				break;
+			case 1:
+				bottomColor = "BLUE";
+				break;
+			case 2: 
+				bottomColor = "YELLOW";
+				break;
+			case 3:
+				bottomColor = "WHITE";
+				break;
 			case 4:
-				bottomColor = "PURPLE";
+				bottomColor = "ORANGE";
 				break;
 			case 5:
-				bottomColor = "YELLOW";
+				bottomColor = "RED";
 				break;
 			default:
 				bottomColor = "ERROR";
