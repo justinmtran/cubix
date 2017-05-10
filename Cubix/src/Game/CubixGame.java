@@ -86,6 +86,7 @@ import sage.texture.Texture.ApplyMode;
 		private String playerTextureName;
 		private boolean isHosting;
 		private boolean isMultiplayer;
+		private String levelThemeName;
 		
 		IAudioManager audioMgr;
 		Sound ghostSound;
@@ -133,6 +134,7 @@ import sage.texture.Texture.ApplyMode;
 			cam = renderer.getCamera();
 			cam.setPerspectiveFrustum(60, 1, 1, 1000);
 			
+			//Get game initialization options.  Network options, player texture, level theme
 			getOptions();
 			
 			ScriptEngineManager factory = new ScriptEngineManager();
@@ -162,6 +164,7 @@ import sage.texture.Texture.ApplyMode;
 		private void getOptions()
 		{
 			String[] textureNames = {"Cube", "Cube 2"};
+			String[] themeNames = {"Island", "Snow"};
 			JTextField serverIPField;
 			try
 			{
@@ -169,15 +172,18 @@ import sage.texture.Texture.ApplyMode;
 			}
 			catch(Exception e)
 			{
-				serverIPField = new JTextField("");
+				serverIPField = new JTextField();
 			}
 			JComboBox<String> playerTextureNameComboBox = new JComboBox<String>(textureNames);
+			JComboBox<String> levelThemeNameComboBox = new JComboBox<String>(themeNames);
 			JTextField serverPortField = new JTextField("6000");
 			JCheckBox isHostingCheckBox = new JCheckBox();
 			JCheckBox isMultiPlayerCheckBox = new JCheckBox();
+			isMultiPlayerCheckBox.setSelected(true);
 			
 			Object[] message = {
 				"Cube Texture:", playerTextureNameComboBox,
+				"Level Theme:", levelThemeNameComboBox,
 				"Multiplayer:", isMultiPlayerCheckBox,
 			    "Create Server:", isHostingCheckBox,
 			    "Server IP address:", serverIPField,
@@ -193,6 +199,7 @@ import sage.texture.Texture.ApplyMode;
 				    playerTextureName = (String)playerTextureNameComboBox.getSelectedItem();
 				    isHosting = isHostingCheckBox.isSelected();
 				    isMultiplayer = isMultiPlayerCheckBox.isSelected();
+				    levelThemeName = (String)levelThemeNameComboBox.getSelectedItem();
 				}
 				catch(Exception e)
 				{
@@ -263,7 +270,19 @@ import sage.texture.Texture.ApplyMode;
 			
 			// add Skybox
 			skybox = new Theme("Background",20.0f, 20.0f, 20.0f); 
-			skybox.snowTheme(this);
+			switch(levelThemeName)
+			{
+				case "Island":
+					skybox.islandTheme();
+					break;
+				case "Snow":
+					skybox.snowTheme(this);
+					break;
+				case "Halloween":
+					skybox.halloweenTheme();
+					break;
+			}
+			
 			addGameWorldObject(skybox);
 			
 			// add snow
@@ -382,7 +401,7 @@ import sage.texture.Texture.ApplyMode;
 				String slash = File.separator;
 				model = loader.loadModel("objects" + slash + "ghost.mesh.xml",
 										"materials" + slash + "ghost.material",
-										"objects" + slash + "ghost.skeleton.xml", "images" + slash + "textures" + slash + "objects" + slash, ApplyMode.Replace);
+										"objects" + slash + "ghost.skeleton.xml");
 				model.updateGeometricState(0, true);
 			}
 			catch(Exception e)
@@ -401,7 +420,7 @@ import sage.texture.Texture.ApplyMode;
 			
 			// create texture and texture state to color the terrain
 			TextureState state;
-			Texture sandTexture = TextureManager.loadTexture2D("images/textures/stage_snow/snow_texture.jpg");
+			Texture sandTexture = TextureManager.loadTexture2D("images/textures/stage_" + levelThemeName + "/" + levelThemeName + "_texture.jpg");
 			sandTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 			state = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
 			state.setTexture(sandTexture, 0);
@@ -620,7 +639,7 @@ import sage.texture.Texture.ApplyMode;
 			player.update(time);
 			
 			
-			//Update ghosts
+			//Update ghostAvatars
 			if(gameClient != null)
 			{
 				ArrayList<GhostAvatar> ghosts = gameClient.getGhostAvatars();

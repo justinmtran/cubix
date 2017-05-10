@@ -14,6 +14,10 @@ import sage.ai.behaviortrees.BehaviorTree;
 import sage.scene.Group;
 import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
+import sage.scene.state.RenderState;
+import sage.scene.state.TextureState;
+import sage.texture.Texture;
+import sage.texture.TextureManager;
 
 public class NPCGhostController {
 	private PlayerAvatar player;
@@ -25,12 +29,26 @@ public class NPCGhostController {
 	private float lastTickUpdateTime;
 	private int speed = 2;
 	private String currentAnimation = "";
+	Texture defaultTexture, chaseTexture;
 	
 	public NPCGhostController(Group g, PlayerAvatar p)
 	{
 		ghost = g;
 		player = p;
 		setupBehaviorTree();
+		
+		defaultTexture = TextureManager.loadTexture2D("images/textures/objects/ghost-texture-default.png");
+		defaultTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
+
+		chaseTexture = TextureManager.loadTexture2D("images/textures/objects/ghost-texture-chase.png");
+		chaseTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
+		
+		Iterator<SceneNode> itr = ghost.getChildren();
+		while(itr.hasNext())
+		{
+			Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
+			mesh.setTexture(defaultTexture);
+		}
 	}
 	
 	
@@ -102,11 +120,23 @@ public class NPCGhostController {
 			{
 				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
 				mesh.startAnimation(name);
+				
+				if(name.equals("Default"))
+				{
+					mesh.setTexture(defaultTexture);
+				}
+				else if (name.equals("Move"))
+				{
+					mesh.setTexture(chaseTexture);
+				}
 			}
 			currentAnimation = name;
+			
+
 			
 		}
 
 	}
+	
 }
 
