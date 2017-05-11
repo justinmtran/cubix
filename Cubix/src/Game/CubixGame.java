@@ -28,6 +28,7 @@ import GameEngine.MoveDownKey;
 import GameEngine.MoveLeftKey;
 import GameEngine.MoveRightKey;
 import GameEngine.MoveUpKey;
+import GameEngine.SettingsDialog;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
@@ -165,54 +166,70 @@ import sage.texture.Texture.ApplyMode;
 		
 		private void getOptions()
 		{
-			String[] textureNames = {"Cube", "Cube 2"};
-			String[] themeNames = {"Island", "Snow"};
-			JTextField serverIPField;
+			SettingsDialog dialog = new SettingsDialog();
+			String[] data = dialog.showDialog();
 			try
 			{
-				serverIPField = new JTextField(InetAddress.getLocalHost().getHostAddress());
+				levelThemeName = data[0];
+				playerTextureName = data[1];
+				isMultiplayer = new Boolean(data[2]);
+				isHosting = new Boolean(data[3]);
+				serverAddress = data[4];
+			    serverPort = Integer.parseInt(data[5]);			
 			}
 			catch(Exception e)
 			{
-				serverIPField = new JTextField();
-			}
-			JComboBox<String> playerTextureNameComboBox = new JComboBox<String>(textureNames);
-			JComboBox<String> levelThemeNameComboBox = new JComboBox<String>(themeNames);
-			JTextField serverPortField = new JTextField("6000");
-			JCheckBox isHostingCheckBox = new JCheckBox();
-			JCheckBox isMultiPlayerCheckBox = new JCheckBox();
-			isMultiPlayerCheckBox.setSelected(true);
-			
-			Object[] message = {
-				"Cube Texture:", playerTextureNameComboBox,
-				"Level Theme:", levelThemeNameComboBox,
-				"Multiplayer:", isMultiPlayerCheckBox,
-			    "Create Server:", isHostingCheckBox,
-			    "Server IP address:", serverIPField,
-			    "Server Port:", serverPortField,
-			};
-			int option = JOptionPane.showConfirmDialog(null, message, "Game Settings", JOptionPane.OK_CANCEL_OPTION);
-			if (option == JOptionPane.OK_OPTION)
-			{
-				try
-				{
-				    serverAddress = serverIPField.getText();
-				    serverPort = Integer.parseInt(serverPortField.getText());
-				    playerTextureName = (String)playerTextureNameComboBox.getSelectedItem();
-				    isHosting = isHostingCheckBox.isSelected();
-				    isMultiplayer = isMultiPlayerCheckBox.isSelected();
-				    levelThemeName = (String)levelThemeNameComboBox.getSelectedItem();
-				}
-				catch(Exception e)
-				{
-					JOptionPane.showMessageDialog(null, "Invalid Selection");
-					System.exit(1);
-				}
-			}
-			else
-			{
+				JOptionPane.showMessageDialog(null, "Invalid Selection");
 				System.exit(1);
 			}
+//			String[] textureNames = {"Cube", "Cube 2"};
+//			String[] themeNames = {"Island", "Snow"};
+//			JTextField serverIPField;
+//			try
+//			{
+//				serverIPField = new JTextField(InetAddress.getLocalHost().getHostAddress());
+//			}
+//			catch(Exception e)
+//			{
+//				serverIPField = new JTextField();
+//			}
+//			JComboBox<String> playerTextureNameComboBox = new JComboBox<String>(textureNames);
+//			JComboBox<String> levelThemeNameComboBox = new JComboBox<String>(themeNames);
+//			JTextField serverPortField = new JTextField("6000");
+//			JCheckBox isHostingCheckBox = new JCheckBox();
+//			JCheckBox isMultiPlayerCheckBox = new JCheckBox();
+//			isMultiPlayerCheckBox.setSelected(true);
+//			
+//			Object[] message = {
+//				"Cube Texture:", playerTextureNameComboBox,
+//				"Level Theme:", levelThemeNameComboBox,
+//				"Multiplayer:", isMultiPlayerCheckBox,
+//			    "Create Server:", isHostingCheckBox,
+//			    "Server IP address:", serverIPField,
+//			    "Server Port:", serverPortField,
+//			};
+//			int option = JOptionPane.showConfirmDialog(null, message, "Game Settings", JOptionPane.OK_CANCEL_OPTION);
+//			if (option == JOptionPane.OK_OPTION)
+//			{
+//				try
+//				{
+//				    serverAddress = serverIPField.getText();
+//				    serverPort = Integer.parseInt(serverPortField.getText());
+//				    playerTextureName = (String)playerTextureNameComboBox.getSelectedItem();
+//				    isHosting = isHostingCheckBox.isSelected();
+//				    isMultiplayer = isMultiPlayerCheckBox.isSelected();
+//				    levelThemeName = (String)levelThemeNameComboBox.getSelectedItem();
+//				}
+//				catch(Exception e)
+//				{
+//					JOptionPane.showMessageDialog(null, "Invalid Selection");
+//					System.exit(1);
+//				}
+//			}
+//			else
+//			{
+//				System.exit(1);
+//			}
 		}
 		
 		private void createPlayer(){
