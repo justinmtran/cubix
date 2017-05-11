@@ -56,7 +56,9 @@ import sage.scene.SceneNode.RENDER_MODE;
 import sage.scene.TriMesh;
 import sage.scene.shape.Line;
 import sage.scene.shape.Sphere;
+import sage.scene.state.BlendState;
 import sage.scene.state.RenderState;
+import sage.scene.state.RenderState.RenderStateType;
 import sage.scene.state.TextureState;
 import sage.terrain.AbstractHeightMap;
 import sage.terrain.ImageBasedHeightMap;
@@ -319,6 +321,17 @@ import sage.texture.Texture.ApplyMode;
 				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
 				mesh.startAnimation("Rotate");
 			}
+			
+			BlendState btransp = (BlendState) renderer.createRenderState(RenderStateType.Blend);
+			btransp.setBlendEnabled(true);
+			btransp.setSourceFunction(BlendState.SourceFunction.SourceAlpha);
+			btransp.setDestinationFunction(BlendState.DestinationFunction.DestinationAlpha);
+			btransp.setTestEnabled(true);
+			btransp.setTestFunction(BlendState.TestFunction.GreaterThan);
+			btransp.setEnabled(true);
+			lighthouse.setRenderState(btransp);
+			lighthouse.updateRenderStates();
+			lighthouse.setRenderMode(RENDER_MODE.TRANSPARENT);
 			
 			//Add ghost
 			ghost = getGhost();
