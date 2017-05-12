@@ -18,12 +18,14 @@ public class PlayerAvatar extends Group{
 	private TerrainBlock terrain; 
 	GameClient client;
 	private Vector3D[] faces = new Vector3D[6];
+	private CubixGame game;
 	
-	public PlayerAvatar(String textureName, TerrainBlock t, GameClient c)
+	public PlayerAvatar(String textureName, CubixGame g, GameClient c)
 	{
-		terrain = t;
 		client = c;
-		updateVerticalPosition();
+		game = g;
+		
+		game.updateVerticalPosition(this);
 		
 		faces[0] = new Vector3D(0,0,-1); //front
 		faces[1] = new Vector3D(0,0,1); //back
@@ -72,10 +74,10 @@ public class PlayerAvatar extends Group{
 				bottomColor = "BLUE";
 				break;
 			case 2: 
-				bottomColor = "YELLOW";
+				bottomColor = "WHITE";
 				break;
 			case 3:
-				bottomColor = "WHITE";
+				bottomColor = "YELLOW";
 				break;
 			case 4:
 				bottomColor = "ORANGE";
@@ -114,30 +116,12 @@ public class PlayerAvatar extends Group{
 			this.translate((float)translationAmt.getX(), (float)translationAmt.getY(), (float)translationAmt.getZ());
 			this.rotate(rotationAmt, rot);
 			
-			updateVerticalPosition();
+			game.updateVerticalPosition(this);
 
 		}
 	}
 	
-	protected void updateVerticalPosition(){
-		 // get avatar's X and Y coord.
-		 Point3D avLoc = new Point3D(this.getLocalTranslation().getCol(3)); // get local XYZ coord
-		 float x = (float) avLoc.getX();
-		 float z = (float) avLoc.getZ();
-		 
-		 // get Y coord based of terrain's local X,Y
-		 float terHeight = terrain.getHeight(x,z);
-		 
-		 // calculate new Y for avatar 
-		 float desiredHeight = terHeight + (float)terrain.getOrigin().getY() + 0.5f;
-		 
-		 // apply Y translation 
-		 if(desiredHeight >= -2)
-		 {
-			 this.getLocalTranslation().setElementAt(1, 3, desiredHeight+0.6);
-		 }
-		 
-	 }
+
 	
 	public int getBottomFace()
 	{

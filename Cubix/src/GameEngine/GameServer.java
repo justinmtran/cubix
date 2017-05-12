@@ -8,9 +8,11 @@ import sage.networking.server.GameConnectionServer;
 import sage.networking.server.IClientInfo;
 
 public class GameServer extends GameConnectionServer<UUID>{
-	public GameServer(int port) throws IOException
+	private String levelTheme;
+	public GameServer(int port, String themeName) throws IOException
 	{
 		super(port,ProtocolType.TCP);
+		levelTheme = themeName;
 	}
 	
 	public void acceptClient(IClientInfo client, Object obj)
@@ -83,6 +85,7 @@ public class GameServer extends GameConnectionServer<UUID>{
 			String message = new String("join,");
 			if(success) message += "success";
 			else message += "failure";
+			message += "," + levelTheme;
 			System.out.println("Server Sending Joined Message: " + message + " to: " + clientID.toString());
 			sendPacket(message, clientID);
 		}

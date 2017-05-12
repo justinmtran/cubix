@@ -9,8 +9,8 @@ public class GhostAvatar extends PlayerAvatar{
 	
 	private UUID id;
 	
-	public GhostAvatar(String textureName, Vector3D position, UUID id, TerrainBlock t) {
-		super(textureName, t, null);
+	public GhostAvatar(String textureName, Vector3D position, UUID id, CubixGame g) {
+		super(textureName, g, null);
 		this.translate((float)position.getX(), (float)position.getY(), (float)position.getZ());
 		this.id = id;
 	}
@@ -19,9 +19,5 @@ public class GhostAvatar extends PlayerAvatar{
 	{
 		return id;
 	}
-	
-	public void updateVerticalPosition(){
-		 super.updateVerticalPosition();
-	 }
 
 }

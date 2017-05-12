@@ -23,7 +23,7 @@ public class SettingsDialog extends JDialog{
 
 	private final JPanel contentPanel = new JPanel();
 	String[] textureNames = {"Cube", "Cube 2"};
-	String[] themeNames = {"Island", "Snow"};
+	String[] themeNames = {"Island", "Snow", "Halloween"};
 	private JTextField textFieldServerIP = new JTextField();
 	private JTextField textFieldServerPort = new JTextField();
 	private JCheckBox chckbxCreateServer = new JCheckBox("Create Server");
@@ -50,8 +50,6 @@ public class SettingsDialog extends JDialog{
 	 */
 	public SettingsDialog() {
 		this.setModal(true);
-		String[] textureNames = {"Cube", "Cube 2"};
-		String[] themeNames = {"Island", "Snow"};
 		setBounds(100, 100, 505, 278);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));

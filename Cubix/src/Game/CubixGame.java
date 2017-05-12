@@ -139,6 +139,7 @@ import sage.texture.Texture.ApplyMode;
 			
 			//Get game initialization options.  Network options, player texture, level theme
 			getOptions();
+			initNetwork();
 			
 			ScriptEngineManager factory = new ScriptEngineManager();
 			List<ScriptEngineFactory> list = factory.getEngineFactories();
@@ -147,19 +148,24 @@ import sage.texture.Texture.ApplyMode;
 			fileLastModifiedTime = 0; //scriptFile.lastModified();
 			this.runScript();
 			
-			snow = new Sphere[MAX_SNOW];
+
 			
+			gameClient.processPackets();
 			createScene(); 
 			initTerrain();
 			
 			// initalize physics
-			initPhysicsSystem(); 
-			createSagePhysicsWorld(); 
-			
+			if(levelThemeName.equals("Snow"))
+			{
+				initPhysicsSystem(); 
+				createSagePhysicsWorld(); 	
+			}
 
-			initNetwork();
 			createPlayer(); 
-			ghostController = new NPCGhostController(ghost, player);
+			if(levelThemeName.equals("Halloween"))
+			{
+				ghostController = new NPCGhostController(ghost, player);
+			}
 			initInput(); 
 			initAudio();
 		}
@@ -182,62 +188,16 @@ import sage.texture.Texture.ApplyMode;
 				JOptionPane.showMessageDialog(null, "Invalid Selection");
 				System.exit(1);
 			}
-//			String[] textureNames = {"Cube", "Cube 2"};
-//			String[] themeNames = {"Island", "Snow"};
-//			JTextField serverIPField;
-//			try
-//			{
-//				serverIPField = new JTextField(InetAddress.getLocalHost().getHostAddress());
-//			}
-//			catch(Exception e)
-//			{
-//				serverIPField = new JTextField();
-//			}
-//			JComboBox<String> playerTextureNameComboBox = new JComboBox<String>(textureNames);
-//			JComboBox<String> levelThemeNameComboBox = new JComboBox<String>(themeNames);
-//			JTextField serverPortField = new JTextField("6000");
-//			JCheckBox isHostingCheckBox = new JCheckBox();
-//			JCheckBox isMultiPlayerCheckBox = new JCheckBox();
-//			isMultiPlayerCheckBox.setSelected(true);
-//			
-//			Object[] message = {
-//				"Cube Texture:", playerTextureNameComboBox,
-//				"Level Theme:", levelThemeNameComboBox,
-//				"Multiplayer:", isMultiPlayerCheckBox,
-//			    "Create Server:", isHostingCheckBox,
-//			    "Server IP address:", serverIPField,
-//			    "Server Port:", serverPortField,
-//			};
-//			int option = JOptionPane.showConfirmDialog(null, message, "Game Settings", JOptionPane.OK_CANCEL_OPTION);
-//			if (option == JOptionPane.OK_OPTION)
-//			{
-//				try
-//				{
-//				    serverAddress = serverIPField.getText();
-//				    serverPort = Integer.parseInt(serverPortField.getText());
-//				    playerTextureName = (String)playerTextureNameComboBox.getSelectedItem();
-//				    isHosting = isHostingCheckBox.isSelected();
-//				    isMultiplayer = isMultiPlayerCheckBox.isSelected();
-//				    levelThemeName = (String)levelThemeNameComboBox.getSelectedItem();
-//				}
-//				catch(Exception e)
-//				{
-//					JOptionPane.showMessageDialog(null, "Invalid Selection");
-//					System.exit(1);
-//				}
-//			}
-//			else
-//			{
-//				System.exit(1);
-//			}
+
 		}
 		
 		private void createPlayer(){
 			playerTextureName = "images/textures/objects/" + playerTextureName + ".png";
-			player = new PlayerAvatar(playerTextureName, imgTerrain, gameClient);
+			player = new PlayerAvatar(playerTextureName, this, gameClient);
 			player.translate(3, 0, 3);
 			//player.rotate(180, new Vector3D(0,1,0));
 			addGameWorldObject(player);
+			gameClient.sendCreateMessage(getPosition(), getPlayerTextureName());
 		}
 		
 		protected void initPhysicsSystem(){
@@ -264,7 +224,7 @@ import sage.texture.Texture.ApplyMode;
 				{
 					try
 					{
-						new GameServer(serverPort);
+						new GameServer(serverPort, levelThemeName);
 					}
 					catch(IOException e)
 					{
@@ -274,7 +234,7 @@ import sage.texture.Texture.ApplyMode;
 				
 				try
 				{
-					gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this, imgTerrain);
+					gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
 					System.out.println(gameClient);
 				}
 				catch(UnknownHostException e) {e.printStackTrace();}
@@ -286,33 +246,72 @@ import sage.texture.Texture.ApplyMode;
 		}
 		
 		private void createScene(){
-			
+			Iterator<SceneNode> itr;
 			// add Skybox
 			skybox = new Theme("Background",20.0f, 20.0f, 20.0f); 
 			switch(levelThemeName)
 			{
 				case "Island":
 					skybox.islandTheme();
+					addGameWorldObject(skybox);
+					
+					//Add lighthouse
+					lighthouse = getLighthouse();
+					lighthouse.translate(20, 0, 20);
+					lighthouse.updateGeometricState(0, true);
+					addGameWorldObject(lighthouse);
+					itr = lighthouse.getChildren();
+					while(itr.hasNext())
+					{
+						Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
+						mesh.startAnimation("Rotate");
+					}
+					
+					BlendState btransp = (BlendState) renderer.createRenderState(RenderStateType.Blend);
+					btransp.setBlendEnabled(true);
+					btransp.setSourceFunction(BlendState.SourceFunction.SourceAlpha);
+					btransp.setDestinationFunction(BlendState.DestinationFunction.DestinationAlpha);
+					btransp.setTestEnabled(true);
+					btransp.setTestFunction(BlendState.TestFunction.GreaterThan);
+					btransp.setEnabled(true);
+					lighthouse.setRenderState(btransp);
+					lighthouse.updateRenderStates();
+					lighthouse.setRenderMode(RENDER_MODE.TRANSPARENT);
 					break;
 				case "Snow":
 					skybox.snowTheme(this);
+					addGameWorldObject(skybox);
+					
+					snow = new Sphere[MAX_SNOW];
+					
+					// add snow
+					Random rn = new Random();  
+					for(int i = 0; i < MAX_SNOW; i++){
+						snow[i] = new Sphere(.09, 16, 16, Color.white);
+						Matrix3D xform = new Matrix3D();
+						xform.translate(rn.nextInt(30), rn.nextInt(15)+10, rn.nextInt(30));
+						snow[i].setLocalTranslation(xform);
+						addGameWorldObject(snow[i]);
+						snow[i].updateGeometricState(1.0f, true);
+					}
 					break;
 				case "Halloween":
 					skybox.halloweenTheme();
+					addGameWorldObject(skybox);
+					
+					//Add ghost
+					ghost = getGhost();
+					ghost.translate(10, 5, 10);
+					ghost.updateGeometricState(0, true);
+					addGameWorldObject(ghost);
+					itr = ghost.getChildren();
+					while(itr.hasNext())
+					{
+						Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
+						mesh.scale(.5f, .5f, .5f);
+					}
+					
 					break;
-			}
-			
-			addGameWorldObject(skybox);
-			
-			// add snow
-			Random rn = new Random();  
-			for(int i = 0; i < MAX_SNOW; i++){
-				snow[i] = new Sphere(.09, 16, 16, Color.white);
-				Matrix3D xform = new Matrix3D();
-				xform.translate(rn.nextInt(30), rn.nextInt(15)+10, rn.nextInt(30));
-				snow[i].setLocalTranslation(xform);
-				addGameWorldObject(snow[i]);
-				snow[i].updateGeometricState(1.0f, true);
 			}
 			
 			// add 3D axis
@@ -327,42 +326,6 @@ import sage.texture.Texture.ApplyMode;
 			addGameWorldObject(yAxis);
 			addGameWorldObject(zAxis);
 			
-			//Add lighthouse
-			lighthouse = getLighthouse();
-			lighthouse.translate(20, 0, 20);
-			lighthouse.updateGeometricState(0, true);
-			addGameWorldObject(lighthouse);
-			Iterator<SceneNode> itr = lighthouse.getChildren();
-			while(itr.hasNext())
-			{
-				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
-				mesh.startAnimation("Rotate");
-			}
-			
-			BlendState btransp = (BlendState) renderer.createRenderState(RenderStateType.Blend);
-			btransp.setBlendEnabled(true);
-			btransp.setSourceFunction(BlendState.SourceFunction.SourceAlpha);
-			btransp.setDestinationFunction(BlendState.DestinationFunction.DestinationAlpha);
-			btransp.setTestEnabled(true);
-			btransp.setTestFunction(BlendState.TestFunction.GreaterThan);
-			btransp.setEnabled(true);
-			lighthouse.setRenderState(btransp);
-			lighthouse.updateRenderStates();
-			lighthouse.setRenderMode(RENDER_MODE.TRANSPARENT);
-			
-			//Add ghost
-			ghost = getGhost();
-			ghost.translate(10, 5, 10);
-			ghost.updateGeometricState(0, true);
-			addGameWorldObject(ghost);
-			itr = ghost.getChildren();
-			while(itr.hasNext())
-			{
-				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
-				mesh.scale(.5f, .5f, .5f);
-			}
-			
-			
 		}
 		
 		public void initAudio()
@@ -374,16 +337,22 @@ import sage.texture.Texture.ApplyMode;
 				return;				
 			}
 			
+
 			resource1 = audioMgr.createAudioResource("sounds/ghost.wav", AudioResourceType.AUDIO_SAMPLE);
-			
 			ghostSound = new Sound(resource1, SoundType.SOUND_EFFECT, 75, true);
 			ghostSound.initialize(audioMgr);
-			ghostSound.setMaxDistance(50f);
-			ghostSound.setMinDistance(5f);
-			ghostSound.setRollOff(5.0f);
-			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
+	
 			setEarParameters();
-			ghostSound.play();
+			
+			if(levelThemeName.equals("Halloween"))
+			{
+				ghostSound.setMaxDistance(50f);
+				ghostSound.setMinDistance(5f);
+				ghostSound.setRollOff(5.0f);
+				ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
+				ghostSound.play();
+			}
+			
 		}
 		
 		public void releaseSounds()
@@ -394,9 +363,7 @@ import sage.texture.Texture.ApplyMode;
 		}
 		
 		public void setEarParameters()
-		{
-			
-			
+		{			
 			audioMgr.getEar().setLocation(new Point3D(player.getWorldTranslation().getCol(3)));
 			audioMgr.getEar().setOrientation(cam.getViewDirection(), new Vector3D(0,1,0));
 		}
@@ -607,43 +574,70 @@ import sage.texture.Texture.ApplyMode;
 		
 		public void update(float time)
 		{
-			// WIND PHYSICS
-			windTimer +=time; 
-			if(windTimer < 5000) // NO WIND
-				pe.setGravity(new float[] {-.01f, -.1f, 0});
-			else{ // WIND
-				pe.setGravity(new float[] { -.2f, -.1f, 0});
-				if(windTimer > 8000)
-					windTimer = 0; 
-			}
-			// WIND PHYSICS
-			for(int i = 0; i < MAX_SNOW; i++){
-				if(snow[i].getWorldTransform().getCol(3).getY() <= 1){
-					Random rn = new Random(); 
-					Matrix3D xform = new Matrix3D();
-					xform.translate(rn.nextInt(30), rn.nextInt(15)+10, rn.nextInt(30));
-					snow[i].getLocalTranslation().setCol(3,xform.getCol(3));
-					snow[i].getPhysicsObject().setTransform(xform.getValues());
+			Iterator<SceneNode> itr;
+			if(levelThemeName.equals("Snow"))
+			{
+				// WIND PHYSICS
+				windTimer +=time; 
+				if(windTimer < 5000) // NO WIND
+					pe.setGravity(new float[] {-.01f, -.1f, 0});
+				else{ // WIND
+					pe.setGravity(new float[] { -.2f, -.1f, 0});
+					if(windTimer > 8000)
+						windTimer = 0; 
+				}
+				// WIND PHYSICS
+				for(int i = 0; i < MAX_SNOW; i++){
+					if(snow[i].getWorldTransform().getCol(3).getY() <= 1){
+						Random rn = new Random(); 
+						Matrix3D xform = new Matrix3D();
+						xform.translate(rn.nextInt(30), rn.nextInt(15)+10, rn.nextInt(30));
+						snow[i].getLocalTranslation().setCol(3,xform.getCol(3));
+						snow[i].getPhysicsObject().setTransform(xform.getValues());
+					}
+				}
+				// WIND PHYSICS
+				Matrix3D mat;
+				pe.update(time);
+				for (SceneNode s : getGameWorld()) {
+					if (s.getPhysicsObject() != null) {
+						mat = new Matrix3D(s.getPhysicsObject().getTransform());
+						s.getLocalTranslation().setCol(3, mat.getCol(3));
+						// should also get and apply rotation
+					}
 				}
 			}
-			// WIND PHYSICS
-			Matrix3D mat;
-			pe.update(time);
-			for (SceneNode s : getGameWorld()) {
-				if (s.getPhysicsObject() != null) {
-					mat = new Matrix3D(s.getPhysicsObject().getTransform());
-					s.getLocalTranslation().setCol(3, mat.getCol(3));
-					// should also get and apply rotation
-				}
-			}
-			
-			// update 3p camera
-			camController.update(time);
 			
 			//update sounds, ear
 			setEarParameters();
-			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
+			if(levelThemeName.equalsIgnoreCase("Halloween"))
+			{
+				ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
+				
+				itr = ghost.getChildren();
+				while(itr.hasNext())
+				{
+					Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
+					submesh.updateAnimation(time);
+				}
+				
+				ghostController.npcLoop(time);
+			}
 			
+			if(levelThemeName.equals("Island"))
+			{
+				//Update animations
+				itr = lighthouse.getChildren();
+				while(itr.hasNext())
+				{
+					Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
+					submesh.updateAnimation(time);
+				}
+			}
+			
+
+			// update 3p camera
+			camController.update(time);
 			
 			// update skybox position
 			Point3D camLoc = cam.getLocation();
@@ -680,25 +674,35 @@ import sage.texture.Texture.ApplyMode;
 					
 			}
 
-			//Update animations
-			Iterator<SceneNode> itr = lighthouse.getChildren();
-			while(itr.hasNext())
-			{
-				Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
-				submesh.updateAnimation(time);
-			}
-			
-			itr = ghost.getChildren();
-			while(itr.hasNext())
-			{
-				Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
-				submesh.updateAnimation(time);
-			}
-			
-			ghostController.npcLoop(time);
+
 			
 			// regular update
 			super.update(time);
 		}
+		
+		public void setTheme(String t)
+		{
+			levelThemeName = t;
+		}
+		
+		public void updateVerticalPosition(PlayerAvatar target){
+			 // get avatar's X and Y coord.
+			 Point3D avLoc = new Point3D(target.getLocalTranslation().getCol(3)); // get local XYZ coord
+			 float x = (float) avLoc.getX();
+			 float z = (float) avLoc.getZ();
+			 
+			 // get Y coord based of terrain's local X,Y
+			 float terHeight = imgTerrain.getHeight(x,z);
+			 
+			 // calculate new Y for avatar 
+			 float desiredHeight = terHeight + (float)imgTerrain.getOrigin().getY() + 0.5f;
+			 
+			 // apply Y translation 
+			 if(desiredHeight >= -2)
+			 {
+				 target.getLocalTranslation().setElementAt(1, 3, desiredHeight+0.6);
+			 }
+			 
+		 }
 		
 }

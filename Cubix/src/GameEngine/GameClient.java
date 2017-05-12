@@ -20,13 +20,12 @@ public class GameClient extends GameConnectionClient{
 	private TerrainBlock terrain;
 
 	
-	public GameClient(InetAddress remAddr, int port, ProtocolType pType, CubixGame game, TerrainBlock t) throws IOException
+	public GameClient(InetAddress remAddr, int port, ProtocolType pType, CubixGame game) throws IOException
 	{
 		super(remAddr, port, pType);
 		this.game = game;
 		this.id = UUID.randomUUID();
-		this.ghostAvatars = new ArrayList<GhostAvatar>();
-		this.terrain = t;
+		ghostAvatars = new ArrayList<GhostAvatar>();
 	}
 	
 	protected void processPacket (Object msg)
@@ -41,7 +40,8 @@ public class GameClient extends GameConnectionClient{
 			if(msgTokens[1].compareTo("success")== 0)
 			{
 				game.setIsConnected(true);
-				sendCreateMessage(game.getPosition(), game.getPlayerTextureName());
+				game.setTheme(msgTokens[2]);
+				
 			}
 			if(msgTokens[1].compareTo("failure")== 0)
 			{
@@ -182,10 +182,10 @@ public class GameClient extends GameConnectionClient{
 	
 	public void createGhostAvatar(UUID id, Vector3D position, String textureName)
 	{
-		GhostAvatar newGhost = new GhostAvatar(textureName, position, id, terrain);
+		GhostAvatar newGhost = new GhostAvatar(textureName, position, id, game);
 		ghostAvatars.add(newGhost);
 		game.addGhost(newGhost);
-		newGhost.updateVerticalPosition();
+		game.updateVerticalPosition(newGhost);
 		
 		System.out.println("Adding new Ghost");
 	}
