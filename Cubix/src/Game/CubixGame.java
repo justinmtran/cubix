@@ -108,10 +108,10 @@ import sage.texture.Texture.ApplyMode;
 		private long fileLastModifiedTime;
 		private Sphere[] snow; 
 		private float windTimer; 
-		private NPCGhostController ghostController;
+		private NPCGhostController ghost;
 		
 		//Animated Objects
-		private Group lighthouse, ghost;
+		private Group lighthouse;
 		
 		//public CubixGame(String serverAddress, int serverPort)
 		public CubixGame()
@@ -164,7 +164,12 @@ import sage.texture.Texture.ApplyMode;
 			createPlayer(); 
 			if(levelThemeName.equals("Halloween"))
 			{
-				ghostController = new NPCGhostController(ghost, player);
+				//Add ghost
+				ghost = new NPCGhostController(player, this);
+				ghost.translate(10, 1.5f, 10);
+				ghost.scale(0.35f, 0.35f, 0.35f);
+				ghost.updateGeometricState(0, true);
+				addGameWorldObject(ghost);
 			}
 			initInput(); 
 			initAudio();
@@ -299,18 +304,6 @@ import sage.texture.Texture.ApplyMode;
 					skybox.halloweenTheme();
 					addGameWorldObject(skybox);
 					
-					//Add ghost
-					ghost = getGhost();
-					ghost.translate(10, 5, 10);
-					ghost.updateGeometricState(0, true);
-					addGameWorldObject(ghost);
-					itr = ghost.getChildren();
-					while(itr.hasNext())
-					{
-						Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
-						mesh.scale(.5f, .5f, .5f);
-					}
-					
 					break;
 			}
 			
@@ -389,7 +382,7 @@ import sage.texture.Texture.ApplyMode;
 			return model;
 		}
 		
-		private Group getGhost()
+		public Group getGhost()
 		{
 			Group model = null;
 			OgreXMLParser loader = new OgreXMLParser();
@@ -613,15 +606,7 @@ import sage.texture.Texture.ApplyMode;
 			if(levelThemeName.equalsIgnoreCase("Halloween"))
 			{
 				ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
-				
-				itr = ghost.getChildren();
-				while(itr.hasNext())
-				{
-					Model3DTriMesh submesh = ((Model3DTriMesh)itr.next());
-					submesh.updateAnimation(time);
-				}
-				
-				ghostController.npcLoop(time);
+				ghost.npcLoop(time);
 			}
 			
 			if(levelThemeName.equals("Island"))

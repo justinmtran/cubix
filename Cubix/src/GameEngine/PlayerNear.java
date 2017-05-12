@@ -19,8 +19,8 @@ public class PlayerNear extends BTCondition
 
 	protected boolean check() {
 
-		Vector3D location = ghost.getLocalTranslation().getCol(3); 
-		Vector3D location2 = location.minus(player.getLocalTranslation().getCol(3));
+		Vector3D location = ghost.getWorldTranslation().getCol(3); 
+		Vector3D location2 = location.minus(player.getWorldTranslation().getCol(3));
 		if(location2.magnitude() < 15)
 		{
 			return true;
