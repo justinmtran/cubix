@@ -117,10 +117,21 @@ public class PlayerAvatar extends Group{
 			this.rotate(rotationAmt, rot);
 			
 			game.updateVerticalPosition(this);
-
 		}
 	}
 	
+	public void reset()
+	{
+		this.setLocalTranslation(new Matrix3D());
+		this.translate(3, 0, 3);
+		game.updateVerticalPosition(this);
+		this.setLocalRotation(new Matrix3D());
+		if(client != null)
+		{
+			client.sendDieMessage();
+		}
+
+	}
 
 	
 	public int getBottomFace()

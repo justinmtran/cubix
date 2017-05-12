@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import Game.CubixGame;
 import Game.GhostAvatar;
+import graphicslib3D.Matrix3D;
 import graphicslib3D.Vector3D;
 import sage.networking.client.GameConnectionClient;
 import sage.scene.SceneNode;
@@ -97,6 +98,14 @@ public class GameClient extends GameConnectionClient{
 			Vector3D translation = new Vector3D(Float.parseFloat(msgTokens[5]), Float.parseFloat(msgTokens[6]), Float.parseFloat(msgTokens[7]));
 			ghost.move(rotation, translation);
 		}
+		
+		if(msgTokens[0].compareTo("die")== 0)
+		{
+			UUID ghostID = UUID.fromString(msgTokens[1]);
+			resetGhostAvatar(ghostID);
+			
+			System.out.println("Bye Received by server");
+		}
 	}
 	
 	public void sendCreateMessage(Vector3D pos, String textureName)
@@ -128,6 +137,18 @@ public class GameClient extends GameConnectionClient{
 		{
 			System.out.println("Sending Bye message to server");
 			String message = new String("bye," + id);
+			sendPacket(message);
+		}
+		catch(IOException e) {e.printStackTrace();}
+		
+	}
+	
+	public void sendDieMessage()
+	{
+		try
+		{
+			System.out.println("Sending Die message to server");
+			String message = new String("die," + id);
 			sendPacket(message);
 		}
 		catch(IOException e) {e.printStackTrace();}
@@ -177,6 +198,22 @@ public class GameClient extends GameConnectionClient{
 			System.out.println("Ghost does not exist");
 		}
 		
+	}
+	
+	public void resetGhostAvatar(UUID id)
+	{
+		System.out.println("Resetting Ghost Avatar");
+		GhostAvatar ghost = getGhost(id);
+		
+		if(ghost != null)
+		{
+			ghost.setLocalTranslation(new Matrix3D());
+			ghost.setLocalRotation(new Matrix3D());
+		}
+		else
+		{
+			System.out.println("Ghost does not exist");
+		}
 	}
 	
 	

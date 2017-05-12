@@ -73,6 +73,14 @@ public class GameServer extends GameConnectionServer<UUID>{
 				String[] pos = {msgTokens[2], msgTokens[3], msgTokens[4], msgTokens[5], msgTokens[6], msgTokens[7] };
 				sendMoveMessages(clientID, pos);
 			}
+			
+			if(msgTokens[0].compareTo("die")==0)
+			{
+				UUID clientID = UUID.fromString(msgTokens[1]);
+				sendDieMessages(clientID);
+				
+				
+			}
 				
 		}
 		
@@ -156,6 +164,18 @@ public class GameServer extends GameConnectionServer<UUID>{
 			String message = new String("bye," + clientID);
 			forwardPacketToAll(message, clientID);
 			System.out.println("Server Sending Bye Messages");
+		}
+		catch(IOException e) {e.printStackTrace();}
+		
+	}
+	
+	public void sendDieMessages(UUID clientID)
+	{
+		try
+		{
+			String message = new String("die," + clientID);
+			forwardPacketToAll(message, clientID);
+			System.out.println("Server Sending Die Messages");
 		}
 		catch(IOException e) {e.printStackTrace();}
 		
