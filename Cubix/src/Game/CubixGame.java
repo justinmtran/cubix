@@ -71,7 +71,7 @@ import sage.texture.Texture.ApplyMode;
 	public class CubixGame extends BaseGame{
 		// Constants
 		private final int MAX_SNOW = 40;
-		
+		private int gridDimension = 11;
 		
 		
 		// Mechanical Objects
@@ -109,6 +109,7 @@ import sage.texture.Texture.ApplyMode;
 		private Sphere[] snow; 
 		private float windTimer; 
 		private NPCGhostController ghost;
+		private Tile[][] tiles; 
 		
 		//Animated Objects
 		private Group lighthouse;
@@ -132,6 +133,14 @@ import sage.texture.Texture.ApplyMode;
 			im = getInputManager();
 			display = getDisplaySystem();
 			renderer = display.getRenderer();
+			
+			// init grid
+			tiles = new Tile[gridDimension][gridDimension]; 
+			for(int i = 0; i < gridDimension; i++){
+				for(int j = 0; j < gridDimension; j++){
+					tiles[i][j] = new Tile(); 
+				}
+			}
 			
 			// init Camera
 			cam = renderer.getCamera();
@@ -203,6 +212,7 @@ import sage.texture.Texture.ApplyMode;
 			playerTextureName = "images/textures/objects/" + playerTextureName + ".png";
 			player = new PlayerAvatar(playerTextureName, this, gameClient);
 			player.translate(3, 0, 3);
+			player.scale(.8f, .8f, .8f);
 			addGameWorldObject(player);
 			if(gameClient != null)
 			{
@@ -311,6 +321,15 @@ import sage.texture.Texture.ApplyMode;
 					addGameWorldObject(skybox);
 					
 					break;
+			}
+			
+			// add Grid
+			for(int i=0; i<gridDimension; i++){
+				for(int j=0; j<gridDimension;j++){
+					tiles[i][j].translate(2*i+1, .2f, 2*j+1);
+					tiles[i][j].scale(.8f, .8f, .8f);
+					addGameWorldObject(tiles[i][j]);
+				}
 			}
 			
 			// add 3D axis
