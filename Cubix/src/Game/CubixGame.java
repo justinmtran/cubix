@@ -149,8 +149,11 @@ import sage.texture.Texture.ApplyMode;
 			this.runScript();
 			
 
-			
-			gameClient.processPackets();
+			if(gameClient != null)
+			{
+				gameClient.processPackets();
+			}
+
 			createScene(); 
 			initTerrain();
 			
@@ -200,9 +203,12 @@ import sage.texture.Texture.ApplyMode;
 			playerTextureName = "images/textures/objects/" + playerTextureName + ".png";
 			player = new PlayerAvatar(playerTextureName, this, gameClient);
 			player.translate(3, 0, 3);
-			//player.rotate(180, new Vector3D(0,1,0));
 			addGameWorldObject(player);
-			gameClient.sendCreateMessage(getPosition(), getPlayerTextureName());
+			if(gameClient != null)
+			{
+				gameClient.sendCreateMessage(getPosition(), getPlayerTextureName());
+			}
+			
 		}
 		
 		protected void initPhysicsSystem(){
@@ -646,8 +652,7 @@ import sage.texture.Texture.ApplyMode;
 			}
 			
 			player.update(time);
-			
-			
+				
 			//Update ghostAvatars
 			if(gameClient != null)
 			{
@@ -658,8 +663,6 @@ import sage.texture.Texture.ApplyMode;
 				}
 					
 			}
-
-
 			
 			// regular update
 			super.update(time);

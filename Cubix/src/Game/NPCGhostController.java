@@ -95,31 +95,22 @@ public class NPCGhostController extends Group{
 	
 	public void npcLoop(float time)
 	{
-		//while(true)
+		lastThinkUpdateTime += time;
+		lastTickUpdateTime += time;
+		
+		if(lastTickUpdateTime > 50f)
 		{
-			//long currentTime = System.nanoTime();
-			//float elapsedThinkMilliSecs = (currentTime - lastThinkUpdateTime)/(1000000.0f);
-			//float elapsedTickMilliSecs = (currentTime - lastTickUpdateTime)/(1000000.0f);
-			lastThinkUpdateTime += time;
-			lastTickUpdateTime += time;
-			
-			if(lastTickUpdateTime > 50f)
-			{
-				//lastTickUpdateTime = currentTime;
-				this.update(lastTickUpdateTime);
-				lastTickUpdateTime = 0;
-			}
-			
-			if(lastThinkUpdateTime > 500f)
-			{
-				chase = false;
-				//lastThinkUpdateTime = currentTime;
-				bt.update(lastThinkUpdateTime);
-				lastThinkUpdateTime = 0;
-			}
-			
-
+			this.update(lastTickUpdateTime);
+			lastTickUpdateTime = 0;
 		}
+		
+		if(lastThinkUpdateTime > 500f)
+		{
+			chase = false;
+			bt.update(lastThinkUpdateTime);
+			lastThinkUpdateTime = 0;
+		}
+
 	}
 	
 	public void setAnimation(String name)
