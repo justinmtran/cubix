@@ -47,13 +47,9 @@ import sage.renderer.IRenderer;
 import sage.scene.Group;
 import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
-import sage.scene.SceneNode.RENDER_MODE;
-import sage.scene.TriMesh;
 import sage.scene.shape.Line;
 import sage.scene.shape.Sphere;
-import sage.scene.state.BlendState;
 import sage.scene.state.RenderState;
-import sage.scene.state.RenderState.RenderStateType;
 import sage.scene.state.TextureState;
 import sage.terrain.AbstractHeightMap;
 import sage.terrain.ImageBasedHeightMap;
@@ -63,14 +59,12 @@ import sage.texture.Texture.ApplyMode;
 import sage.texture.TextureManager;
 
 /*
- 	STAGE_DIMENSION: 
- 	Island Stage 1	- 0 (8x8)
-	Island Stage 2 	- 1 (10x10)
-	Snow Stage 1 	- 2 (8x8)
-	Snow Stage 2 	- 3 (15x15)
-	Haunted Stage 1 - 4 (12x12)
-	Haunted Stage 2 - 5 (15x15)
+	STAGE_DIMENSION: 
+	Island Stage 	- 0 (8x8)
+	Snow Stage  	- 1 (20x20)
+	Haunted Stage   - 2 (15x15)
 */
+
 public class CubixGame extends BaseGame {
 	// Constants
 	private final int MAX_SNOW = 40;
@@ -106,7 +100,7 @@ public class CubixGame extends BaseGame {
 	Invocable invocableEngine;
 
 	// Terrain Objects
-	private TerrainBlock imgTerrain;
+	private TerrainBlock imgTerrain, gridTerrain;
 
 	// Gameworld Objects
 	private PlayerAvatar player;
@@ -399,23 +393,41 @@ public class CubixGame extends BaseGame {
 		// create height map and terrain block
 		ImageBasedHeightMap myHeightMap = new ImageBasedHeightMap("images/terrains/height_map.jpg");
 		imgTerrain = createTerBlock(myHeightMap);
+		
+		// create grid terrain block
+		myHeightMap = new ImageBasedHeightMap("images/terrains/grid_map.jpg");
+		gridTerrain = createTerBlock(myHeightMap);
 
-		// create texture and texture state to color the terrain
-		TextureState state;
-		Texture sandTexture = TextureManager
+		// create texture and texture state to color the TERRAIN
+		TextureState stateTerrain;
+		Texture stageTerrainTexture = TextureManager
 				.loadTexture2D("images/textures/stage_" + levelThemeName + "/" + levelThemeName + "_texture.jpg");
-		sandTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
-		state = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
-		state.setTexture(sandTexture, 0);
-		state.setEnabled(true);
+		stageTerrainTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
+		stateTerrain = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
+		stateTerrain.setTexture(stageTerrainTexture, 0);
+		stateTerrain.setEnabled(true);
+		
+		// create texture and texture state to color the GRID TERRAIN
+		TextureState stateGridTerrain;
+		Texture gridTexture = TextureManager
+				.loadTexture2D("images/textures/stage_" + levelThemeName + "/" + levelThemeName + "_grid" +"_texture.jpg");
+		gridTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
+		stateGridTerrain = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
+		stateGridTerrain.setTexture(gridTexture, 0);
+		stateGridTerrain.setEnabled(true);
 
 		// apply the texture to the terrain
-		imgTerrain.setRenderState(state);
-		//addGameWorldObject(imgTerrain);
+		imgTerrain.setRenderState(stateTerrain);
+		imgTerrain.translate(-8, .55f, -8);
+		addGameWorldObject(imgTerrain);
+		
+		// apply the texture to the grid terrain
+		gridTerrain.setRenderState(stateGridTerrain);
+		addGameWorldObject(gridTerrain);
 	}
 
 	private TerrainBlock createTerBlock(AbstractHeightMap heightMap) {
-		float heightScale = .008f; // scaling the height of terrain
+		float heightScale = .01f; // scaling the height of terrain
 		Vector3D terrainScale = new Vector3D(.2, heightScale, .2);
 
 		// use the size of the height map as the size of the terrain
