@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import Game.CubixGame;
 import Game.GhostAvatar;
+import graphicslib3D.Matrix3D;
 import graphicslib3D.Vector3D;
 import sage.networking.client.GameConnectionClient;
 import sage.scene.SceneNode;
@@ -20,13 +21,12 @@ public class GameClient extends GameConnectionClient{
 	private TerrainBlock terrain;
 
 	
-	public GameClient(InetAddress remAddr, int port, ProtocolType pType, CubixGame game, TerrainBlock t) throws IOException
+	public GameClient(InetAddress remAddr, int port, ProtocolType pType, CubixGame game) throws IOException
 	{
 		super(remAddr, port, pType);
 		this.game = game;
 		this.id = UUID.randomUUID();
-		this.ghostAvatars = new ArrayList<GhostAvatar>();
-		this.terrain = t;
+		ghostAvatars = new ArrayList<GhostAvatar>();
 	}
 	
 	protected void processPacket (Object msg)
@@ -41,7 +41,8 @@ public class GameClient extends GameConnectionClient{
 			if(msgTokens[1].compareTo("success")== 0)
 			{
 				game.setIsConnected(true);
-				sendCreateMessage(game.getPosition());
+				game.setTheme(msgTokens[2]);
+				
 			}
 			if(msgTokens[1].compareTo("failure")== 0)
 			{
@@ -62,7 +63,8 @@ public class GameClient extends GameConnectionClient{
 		{
 			UUID ghostID = UUID.fromString(msgTokens[1]);
 			Vector3D ghostPosition = new Vector3D(Double.parseDouble(msgTokens[2]), Double.parseDouble(msgTokens[3]), Double.parseDouble(msgTokens[4]));
-			createGhostAvatar(ghostID, ghostPosition);
+			String textureName = msgTokens[5];
+			createGhostAvatar(ghostID, ghostPosition, textureName);
 			
 			System.out.println("DSFR Received by server");
 		}
@@ -71,7 +73,8 @@ public class GameClient extends GameConnectionClient{
 		{
 			UUID ghostID = UUID.fromString(msgTokens[1]);
 			Vector3D ghostPosition = new Vector3D(Double.parseDouble(msgTokens[2]), Double.parseDouble(msgTokens[3]), Double.parseDouble(msgTokens[4]));
-			createGhostAvatar(ghostID, ghostPosition);
+			String textureName = msgTokens[5];
+			createGhostAvatar(ghostID, ghostPosition, textureName);
 			
 			System.out.println("Create Received by server");
 			
@@ -81,7 +84,7 @@ public class GameClient extends GameConnectionClient{
 		{
 			UUID ghostID = UUID.fromString(msgTokens[1]);
 			Vector3D pos = game.getPosition();
-			sendDetailsForMessage(ghostID, pos);
+			sendDetailsForMessage(ghostID, pos, game.getPlayerTextureName());
 			
 			System.out.println("WSDS Received by server");
 
@@ -95,14 +98,23 @@ public class GameClient extends GameConnectionClient{
 			Vector3D translation = new Vector3D(Float.parseFloat(msgTokens[5]), Float.parseFloat(msgTokens[6]), Float.parseFloat(msgTokens[7]));
 			ghost.move(rotation, translation);
 		}
+		
+		if(msgTokens[0].compareTo("die")== 0)
+		{
+			UUID ghostID = UUID.fromString(msgTokens[1]);
+			resetGhostAvatar(ghostID);
+			
+			System.out.println("Bye Received by server");
+		}
 	}
 	
-	public void sendCreateMessage(Vector3D pos)
+	public void sendCreateMessage(Vector3D pos, String textureName)
 	{
 		try
 		{
 			String message = new String("create," + id.toString());
 			message += "," + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+			message += "," + textureName;
 			sendPacket(message);
 		}
 		catch(IOException e) {e.printStackTrace();}
@@ -131,12 +143,25 @@ public class GameClient extends GameConnectionClient{
 		
 	}
 	
-	public void sendDetailsForMessage(UUID remid, Vector3D pos)
+	public void sendDieMessage()
+	{
+		try
+		{
+			System.out.println("Sending Die message to server");
+			String message = new String("die," + id);
+			sendPacket(message);
+		}
+		catch(IOException e) {e.printStackTrace();}
+		
+	}
+	
+	public void sendDetailsForMessage(UUID remid, Vector3D pos, String textureName)
 	{
 		try
 		{
 			String message = new String("dsfr," + remid.toString() + "," + id.toString());
 			message += "," + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+			message += "," + textureName;
 			sendPacket(message);
 		}
 		catch(IOException e) {e.printStackTrace();}
@@ -175,13 +200,29 @@ public class GameClient extends GameConnectionClient{
 		
 	}
 	
-	
-	public void createGhostAvatar(UUID id, Vector3D position)
+	public void resetGhostAvatar(UUID id)
 	{
-		GhostAvatar newGhost = new GhostAvatar(position, id, terrain);
+		System.out.println("Resetting Ghost Avatar");
+		GhostAvatar ghost = getGhost(id);
+		
+		if(ghost != null)
+		{
+			ghost.setLocalTranslation(new Matrix3D());
+			ghost.setLocalRotation(new Matrix3D());
+		}
+		else
+		{
+			System.out.println("Ghost does not exist");
+		}
+	}
+	
+	
+	public void createGhostAvatar(UUID id, Vector3D position, String textureName)
+	{
+		GhostAvatar newGhost = new GhostAvatar(textureName, position, id, game);
 		ghostAvatars.add(newGhost);
 		game.addGhost(newGhost);
-		newGhost.updateVerticalPosition();
+		game.updateVerticalPosition(newGhost);
 		
 		System.out.println("Adding new Ghost");
 	}

@@ -1,18 +1,24 @@
 package Game;
 
 import java.util.UUID;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import graphicslib3D.Vector3D;
-import sage.terrain.TerrainBlock;
 
 public class GhostAvatar extends PlayerAvatar{
 	
 	private UUID id;
+	private Queue<Vector3D> rotQueue, transQueue;
 	
-	public GhostAvatar(Vector3D position, UUID id, TerrainBlock t) {
-		super(t, null);
+	
+	public GhostAvatar(String textureName, Vector3D position, UUID id, CubixGame g) {
+		super(textureName, g, null);
 		this.translate((float)position.getX(), (float)position.getY(), (float)position.getZ());
 		this.id = id;
+		rotQueue = new LinkedList<Vector3D>();
+		transQueue = new LinkedList<Vector3D>();
+		
 	}
 	
 	public UUID getID()
@@ -20,8 +26,19 @@ public class GhostAvatar extends PlayerAvatar{
 		return id;
 	}
 	
-	public void updateVerticalPosition(){
-		 super.updateVerticalPosition();
-	 }
+	public void move(Vector3D rotAxis, Vector3D trans)
+	{
+		rotQueue.add(rotAxis);
+		transQueue.add(trans);
+	}
+	
+	public void update(float time)
+	{
+		if(!getIsMoving() && !rotQueue.isEmpty())
+		{
+			super.move(rotQueue.remove(), transQueue.remove());
+		}
+		super.update(time);
+	}
 
 }

@@ -36,7 +36,13 @@ public class Theme extends SkyBox{
 	}
 	
 	public void halloweenTheme(){
-		
+		north = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_north.jpg");
+		south = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_south.jpg");
+		up = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_up.jpg");
+		down = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_down.jpg");
+		east = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_east.jpg"); 
+		west = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_west.jpg");
+		setTextures();
 	}
 	
 	public void factoryTheme(){
