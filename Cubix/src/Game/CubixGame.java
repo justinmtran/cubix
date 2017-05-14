@@ -16,10 +16,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 
 import GameEngine.CubixCameraController;
 import GameEngine.GameClient;
@@ -32,7 +29,6 @@ import GameEngine.SettingsDialog;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
-import graphicslib3D.Vertex3D;
 import sage.app.BaseGame;
 import sage.audio.AudioManagerFactory;
 import sage.audio.AudioResource;
@@ -44,7 +40,6 @@ import sage.camera.ICamera;
 import sage.display.IDisplaySystem;
 import sage.input.IInputManager;
 import sage.input.action.IAction;
-import sage.model.loader.OBJLoader;
 import sage.model.loader.ogreXML.OgreXMLParser;
 import sage.networking.IGameConnection.ProtocolType;
 import sage.physics.IPhysicsEngine;
@@ -54,7 +49,6 @@ import sage.scene.Group;
 import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
 import sage.scene.SceneNode.RENDER_MODE;
-import sage.scene.TriMesh;
 import sage.scene.shape.Line;
 import sage.scene.shape.Sphere;
 import sage.scene.state.BlendState;
@@ -65,15 +59,13 @@ import sage.terrain.AbstractHeightMap;
 import sage.terrain.ImageBasedHeightMap;
 import sage.terrain.TerrainBlock;
 import sage.texture.Texture;
-import sage.texture.TextureManager;
 import sage.texture.Texture.ApplyMode;
+import sage.texture.TextureManager;
 
 	public class CubixGame extends BaseGame{
 		// Constants
 		private final int MAX_SNOW = 40;
-		private int gridDimension = 11;
-		
-		
+	
 		// Mechanical Objects
 		private CubixCameraController camController; 
 		private ICamera cam; 
@@ -82,6 +74,7 @@ import sage.texture.Texture.ApplyMode;
 		private IInputManager im;
 		private IPhysicsEngine pe; 
 		
+		// Network Objects
 		private String serverAddress;
 		private int serverPort;
 		private ProtocolType serverProtocol;
@@ -90,22 +83,26 @@ import sage.texture.Texture.ApplyMode;
 		private boolean isHosting;
 		private boolean isMultiplayer;
 		private String levelThemeName;
+		private boolean isConnected;
 		
+		// Audio Objects
 		IAudioManager audioMgr;
 		Sound ghostSound;
 		AudioResource resource1;
 		
-		// Texture Objects
+		// Script Objects
+		private ScriptEngine engine;
+		private File scriptFile;
+		Invocable invocableEngine;
+		
+		// Terrain Objects
 		private TerrainBlock imgTerrain;
 		
 		// Gameworld Objects
 		private PlayerAvatar player;
 		private Theme skybox; 
-		private boolean isConnected;
-		private ScriptEngine engine;
-		private String scriptName = "scripts/Script.js";
-		private File scriptFile;
-		private long fileLastModifiedTime;
+
+
 		private Sphere[] snow; 
 		private float windTimer; 
 		private NPCGhostController ghost;
@@ -118,57 +115,53 @@ import sage.texture.Texture.ApplyMode;
 		public CubixGame()
 		{
 			super();
-			
-			//Get server information from console
-			//this.serverAddress = serverAddress;
-			//this.serverPort = serverPort;
-			//this.serverProtocol = ProtocolType.TCP;
-			
-			//this.serverAddress = "127.0.0.1";
-			//this.serverPort = 6000;
 			this.serverProtocol = ProtocolType.TCP;
 		}
 		
 		protected void initGame(){
+			// Get Option Selections (Network options, Player texture, Level theme)
+			getOptions();
+			initNetwork();
+			
+			// check to see if this is a game Client
+			if(gameClient != null)
+				gameClient.processPackets();
+			
+			// initialize Input Manager, Display, Renderer, and Camera. 
 			im = getInputManager();
 			display = getDisplaySystem();
 			renderer = display.getRenderer();
+			cam = renderer.getCamera();
+			cam.setPerspectiveFrustum(60, 1, 1, 1000);
 			
-			// init grid
-			tiles = new Tile[gridDimension][gridDimension]; 
-			for(int i = 0; i < gridDimension; i++){
-				for(int j = 0; j < gridDimension; j++){
+			// initialize Script Engine
+			ScriptEngineManager factory = new ScriptEngineManager();
+			engine = factory.getEngineByName("js");
+			scriptFile = new File("scripts/CreateStageGrid.js");
+			loadScript();
+			invocableEngine = (Invocable) engine;
+			
+			// initialize tiles
+			tiles = new Tile[8][8];
+			// init Grid System
+			for(int i = 0; i < tiles.length; i++){
+				for(int j = 0; j < tiles.length; j++){
 					tiles[i][j] = new Tile(); 
 				}
 			}
 			
-			// init Camera
-			cam = renderer.getCamera();
-			cam.setPerspectiveFrustum(60, 1, 1, 1000);
-			
-			//Get game initialization options.  Network options, player texture, level theme
-			getOptions();
-			initNetwork();
-			
-			ScriptEngineManager factory = new ScriptEngineManager();
-			List<ScriptEngineFactory> list = factory.getEngineFactories();
-			engine = factory.getEngineByName("js");
-			scriptFile = new File(scriptName);
-			fileLastModifiedTime = 0; //scriptFile.lastModified();
-			this.runScript();
-			
-
-			if(gameClient != null)
-			{
-				gameClient.processPackets();
+			// initalize grid map
+			try {
+				invocableEngine.invokeFunction("createStageGrid", tiles, 1);
+			} catch (NoSuchMethodException | ScriptException e) {
+				e.printStackTrace();
 			}
 
 			createScene(); 
 			initTerrain();
 			
-			// initalize physics
-			if(levelThemeName.equals("Snow"))
-			{
+			// initialize physics
+			if(levelThemeName.equals("Snow")){
 				initPhysicsSystem(); 
 				createSagePhysicsWorld(); 	
 			}
@@ -239,29 +232,22 @@ import sage.texture.Texture.ApplyMode;
 		
 		private void initNetwork()
 		{
-			if(isMultiplayer)
-			{
-				if(isHosting)
-				{
-					try
-					{
+			if(isMultiplayer){
+				if(isHosting){
+					try{
 						new GameServer(serverPort, levelThemeName);
 					}
-					catch(IOException e)
-					{
-						e.printStackTrace();
-					}
+					catch(IOException e){e.printStackTrace();}
 				}
-				
-				try
-				{
+				try{
 					gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
 					System.out.println(gameClient);
 				}
 				catch(UnknownHostException e) {e.printStackTrace();}
 				catch(IOException e) {e.printStackTrace();}
 				
-				if(gameClient != null) {gameClient.sendJoinMessage();}
+				if(gameClient != null)
+					gameClient.sendJoinMessage();
 			}
 
 		}
@@ -324,8 +310,8 @@ import sage.texture.Texture.ApplyMode;
 			}
 			
 			// add Grid
-			for(int i=0; i<gridDimension; i++){
-				for(int j=0; j<gridDimension;j++){
+			for(int i=0; i<tiles.length; i++){
+				for(int j=0; j<tiles.length;j++){
 					tiles[i][j].translate(2*i+1, .2f, 2*j+1);
 					tiles[i][j].scale(.8f, .8f, .8f);
 					addGameWorldObject(tiles[i][j]);
@@ -538,55 +524,24 @@ import sage.texture.Texture.ApplyMode;
 			return playerTextureName;
 		}
 		
-		private void runScript()
+		private void loadScript()
 		{
-			try
-			{
+			try{
 				FileReader fileReader = new FileReader(scriptFile);
 				engine.eval(fileReader);
 				fileReader.close();
 			}
-			catch (FileNotFoundException e1)
-			{
+			catch (FileNotFoundException e1){
 				System.out.println(scriptFile + " not found" + e1);
 			}
-			catch (IOException e2)
-			{
+			catch (IOException e2){
 				System.out.println("IO problem with " + scriptFile + e2);
 			}
-			catch (ScriptException e3)
-			{
+			catch (ScriptException e3){
 				System.out.println("ScriptException in " + scriptFile + e3);
 			}
-			catch (NullPointerException e4)
-			{
+			catch (NullPointerException e4){
 				System.out.println("Null ptr exception reading " + scriptFile + e4);
-			}
-			
-		}
-		
-		private void executeScript()
-		{
-			Invocable invocableEngine = (Invocable) engine;
-			try
-			{
-				ArrayList<GhostAvatar> ghosts = gameClient.getGhostAvatars();
-				for(int i = 0; i < ghosts.size(); i++)
-				{
-					invocableEngine.invokeFunction("updateGhost", ghosts.get(i));
-				}
-			}
-			catch (ScriptException e1)
-			{
-				System.out.println("ScriptException in " + scriptFile + e1);
-			}
-			catch (NoSuchMethodException e2)
-			{
-				System.out.println("No such method exception in " + scriptFile + e2);
-			}
-			catch(NullPointerException e3)
-			{
-				System.out.println("Null pointer exception reading " + scriptFile + e3);
 			}
 		}
 		
@@ -644,7 +599,6 @@ import sage.texture.Texture.ApplyMode;
 					submesh.updateAnimation(time);
 				}
 			}
-			
 
 			// update 3p camera
 			camController.update(time);
@@ -660,16 +614,7 @@ import sage.texture.Texture.ApplyMode;
 			{
 				gameClient.processPackets();
 			}
-			
-			//Run script if file changes
-			//long modTime = scriptFile.lastModified();
-			//if(modTime > fileLastModifiedTime)
-			{
-				//fileLastModifiedTime = modTime;
-				//runScript();
-				//executeScript();  Need to implement this as grid creation.  Temporarily removed.
-			}
-			
+
 			player.update(time);
 				
 			//Update ghostAvatars
