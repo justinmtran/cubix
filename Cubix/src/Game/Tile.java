@@ -63,6 +63,7 @@ public class Tile extends Group{
 	public void setTileType(int tileType) {
 		switch(tileType){
 			case 0:{ // terrain tile 
+				removeChild(tile);
 				tile = null; 
 				this.tileType = tileType; 
 				break; 
