@@ -622,12 +622,12 @@ public class CubixGame extends BaseGame {
 		{
 			switch(tiles[i][j].getTileType())
 			{
-			case 7:
+			case 7: //Start tile, do nothing
 				break;
-			case 8:
+			case 8: //Finish tile, WIN
 				System.out.println("FINISH!");
 				break;
-			default:
+			default://Bad tile, reset player
 				player.reset();
 				break;
 			}
