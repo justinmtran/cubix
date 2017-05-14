@@ -10,10 +10,11 @@ public class GhostAvatar extends PlayerAvatar{
 	
 	private UUID id;
 	private Queue<Vector3D> rotQueue, transQueue;
+	private boolean reset;
 	
 	
-	public GhostAvatar(String textureName, Vector3D position, UUID id, CubixGame g) {
-		super(textureName, g, null);
+	public GhostAvatar(String textureName, Vector3D position, UUID id, CubixGame g, Tile t) {
+		super(textureName, g, null, t);
 		this.translate((float)position.getX(), (float)position.getY(), (float)position.getZ());
 		this.id = id;
 		rotQueue = new LinkedList<Vector3D>();
@@ -34,11 +35,21 @@ public class GhostAvatar extends PlayerAvatar{
 	
 	public void update(float time)
 	{
+		if(!getIsMoving() && reset)
+		{
+			super.reset();
+			reset = false;
+		}
 		if(!getIsMoving() && !rotQueue.isEmpty())
 		{
 			super.move(rotQueue.remove(), transQueue.remove());
 		}
 		super.update(time);
+	}
+	
+	public void reset()
+	{
+		reset = true;
 	}
 
 }

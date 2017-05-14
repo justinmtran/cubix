@@ -207,8 +207,7 @@ public class GameClient extends GameConnectionClient{
 		
 		if(ghost != null)
 		{
-			ghost.setLocalTranslation(new Matrix3D());
-			ghost.setLocalRotation(new Matrix3D());
+			ghost.reset();
 		}
 		else
 		{
@@ -219,7 +218,7 @@ public class GameClient extends GameConnectionClient{
 	
 	public void createGhostAvatar(UUID id, Vector3D position, String textureName)
 	{
-		GhostAvatar newGhost = new GhostAvatar(textureName, position, id, game);
+		GhostAvatar newGhost = new GhostAvatar(textureName, position, id, game, game.getStartTile());
 		ghostAvatars.add(newGhost);
 		game.addGhost(newGhost);
 		game.updateVerticalPosition(newGhost);

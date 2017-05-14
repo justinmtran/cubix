@@ -48,6 +48,7 @@ import sage.scene.Group;
 import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
 import sage.scene.SceneNode.RENDER_MODE;
+import sage.scene.TriMesh;
 import sage.scene.shape.Line;
 import sage.scene.shape.Sphere;
 import sage.scene.state.BlendState;
@@ -115,6 +116,7 @@ public class CubixGame extends BaseGame {
 	private float windTimer;
 	private NPCGhostController ghost;
 	private Tile[][] tiles;
+	private Tile startTile;
 
 	// Animated Objects
 	private Group lighthouse;
@@ -196,8 +198,9 @@ public class CubixGame extends BaseGame {
 
 	private void createPlayer() {
 		playerTextureName = "images/textures/objects/" + playerTextureName + ".png";
-		player = new PlayerAvatar(playerTextureName, this, gameClient);
-		player.translate(3, 0, 3);
+		player = new PlayerAvatar(playerTextureName, this, gameClient, startTile);
+		player.setLocalTranslation((Matrix3D)startTile.getLocalTranslation().clone());
+		player.translate(0, 1, 0);
 		player.scale(.8f, .8f, .8f);
 		addGameWorldObject(player);
 		if (gameClient != null) {
@@ -266,16 +269,16 @@ public class CubixGame extends BaseGame {
 				mesh.startAnimation("Rotate");
 			}
 
-			BlendState btransp = (BlendState) renderer.createRenderState(RenderStateType.Blend);
-			btransp.setBlendEnabled(true);
-			btransp.setSourceFunction(BlendState.SourceFunction.SourceAlpha);
-			btransp.setDestinationFunction(BlendState.DestinationFunction.DestinationAlpha);
-			btransp.setTestEnabled(true);
-			btransp.setTestFunction(BlendState.TestFunction.GreaterThan);
-			btransp.setEnabled(true);
-			lighthouse.setRenderState(btransp);
-			lighthouse.updateRenderStates();
-			lighthouse.setRenderMode(RENDER_MODE.TRANSPARENT);
+//			BlendState btransp = (BlendState) renderer.createRenderState(RenderStateType.Blend);
+//			btransp.setBlendEnabled(true);
+//			btransp.setSourceFunction(BlendState.SourceFunction.SourceAlpha);
+//			btransp.setDestinationFunction(BlendState.DestinationFunction.DestinationAlpha);
+//			btransp.setTestEnabled(true);
+//			btransp.setTestFunction(BlendState.TestFunction.GreaterThan);
+//			btransp.setEnabled(true);
+//			lighthouse.setRenderState(btransp);
+//			lighthouse.updateRenderStates();
+//			lighthouse.setRenderMode(RENDER_MODE.TRANSPARENT);
 			break;
 		case "Snow":
 			skybox.snowTheme(this);
@@ -408,7 +411,7 @@ public class CubixGame extends BaseGame {
 
 		// apply the texture to the terrain
 		imgTerrain.setRenderState(state);
-		addGameWorldObject(imgTerrain);
+		//addGameWorldObject(imgTerrain);
 	}
 
 	private TerrainBlock createTerBlock(AbstractHeightMap heightMap) {
@@ -609,6 +612,43 @@ public class CubixGame extends BaseGame {
 		}
 
 	}
+	
+	//Check if player tile is valid
+	public void checkTile(PlayerAvatar p, int i, int j)
+	{
+		System.out.println(tiles[i][j].getTileType());
+		
+		if(tiles[i][j].getTileType() != (player.getBottomFace()+1))
+		{
+			switch(tiles[i][j].getTileType())
+			{
+			case 7:
+				break;
+			case 8:
+				System.out.println("FINISH!");
+				break;
+			default:
+				player.reset();
+				break;
+			}
+		}
+	}
+	
+	public Tile getTile(int i, int j)
+	{
+		//Check if requested tile is in bounds
+		if(i < 0 || i >= tiles.length || j < 0 || j >= tiles[i].length)
+		{
+			return null;
+		}
+		
+		return tiles[i][j];
+	}
+	
+	public Tile getStartTile()
+	{
+		return startTile;
+	}
 
 	private void stageSelect(int selection) {
 		int dimension = STAGE_DIMENSION[selection];
@@ -620,6 +660,7 @@ public class CubixGame extends BaseGame {
 		for(int i = 0; i < dimension; i++){
 			for(int j = 0; j < dimension; j++){
 				tiles[i][j] = new Tile(); 
+				tiles[i][j].updateGeometricState(0, true);
 			}
 		}
 		
@@ -629,5 +670,17 @@ public class CubixGame extends BaseGame {
 		} catch (NoSuchMethodException | ScriptException e) {
 			e.printStackTrace();
 		}
+		
+		//Get starting tile
+		for(int i = 0; i < dimension; i++){
+			for(int j = 0; j < dimension; j++){
+				if(tiles[i][j].getTileType() == 7)
+				{
+					startTile = tiles[i][j];
+				}
+			}
+		}
+		
 	}
+
 }
