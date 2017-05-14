@@ -1,5 +1,7 @@
 package Game;
 
+import java.awt.Color;
+
 import GameEngine.GameClient;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
@@ -7,6 +9,7 @@ import graphicslib3D.Vector3D;
 import sage.model.loader.OBJLoader;
 import sage.scene.Group;
 import sage.scene.TriMesh;
+import sage.scene.shape.Line;
 import sage.terrain.TerrainBlock;
 import sage.texture.Texture;
 import sage.texture.TextureManager;
@@ -18,6 +21,7 @@ public class PlayerAvatar extends Group{
 	private TerrainBlock terrain; 
 	GameClient client;
 	private Vector3D[] faces = new Vector3D[6];
+	private Line[] sides = new Line[6];
 	private CubixGame game;
 	
 	public PlayerAvatar(String textureName, CubixGame g, GameClient c)
@@ -29,10 +33,24 @@ public class PlayerAvatar extends Group{
 		
 		faces[0] = new Vector3D(0,0,-1); //front
 		faces[1] = new Vector3D(0,0,1); //back
-		faces[2] = new Vector3D(-1,0,0); //left
-		faces[3] = new Vector3D(1,0,0); //right
+		faces[2] = new Vector3D(1,0,0); //left
+		faces[3] = new Vector3D(-1,0,0); //right
 		faces[4] = new Vector3D(0,1,0); //up
 		faces[5] = new Vector3D(0,-1,0); //down
+		
+		sides[0] = new Line(new Point3D(), new Point3D(0,0,3), Color.GREEN, 5);
+		sides[1] = new Line(new Point3D(), new Point3D(0,0,-3), Color.BLUE, 5);
+		sides[2] = new Line(new Point3D(), new Point3D(3,0,0), Color.WHITE, 5);
+		sides[3] = new Line(new Point3D(), new Point3D(-3,0,0), Color.YELLOW, 5);
+		sides[4] = new Line(new Point3D(), new Point3D(0,3,0), Color.ORANGE, 5);
+		sides[5] = new Line(new Point3D(), new Point3D(0,-3,0), Color.RED, 5);
+		
+		addChild(sides[0]);
+		addChild(sides[1]);
+		addChild(sides[2]);
+		addChild(sides[3]);
+		addChild(sides[4]);
+		addChild(sides[5]);
 		
 		OBJLoader loader = new OBJLoader();
 		TriMesh cube = loader.loadModel("objects/Cube.obj");
@@ -74,10 +92,10 @@ public class PlayerAvatar extends Group{
 				bottomColor = "BLUE";
 				break;
 			case 2: 
-				bottomColor = "WHITE";
+				bottomColor = "YELLOW";
 				break;
 			case 3:
-				bottomColor = "YELLOW";
+				bottomColor = "WHITE";
 				break;
 			case 4:
 				bottomColor = "ORANGE";
@@ -147,5 +165,11 @@ public class PlayerAvatar extends Group{
 
 		return -1;
 	}
+	
+	protected boolean getIsMoving()
+	{
+		return isMoving;
+	}
+	
 }
 
