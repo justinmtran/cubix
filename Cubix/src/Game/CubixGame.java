@@ -613,14 +613,14 @@ public class CubixGame extends BaseGame {
 		float z = (float) avLoc.getZ();
 
 		// get Y coord based of terrain's local X,Y
-		float terHeight = imgTerrain.getHeight(x, z);
+		float terHeight = gridTerrain.getHeight(x, z);
 
 		// calculate new Y for avatar
-		float desiredHeight = terHeight + (float) imgTerrain.getOrigin().getY() + 0.5f;
+		float desiredHeight = terHeight + (float) gridTerrain.getOrigin().getY() + 0.5f;
 
 		// apply Y translation
 		if (desiredHeight >= -2) {
-			target.getLocalTranslation().setElementAt(1, 3, desiredHeight + 0.6);
+			target.getLocalTranslation().setElementAt(1, 3, desiredHeight + 0.7);
 		}
 
 	}
