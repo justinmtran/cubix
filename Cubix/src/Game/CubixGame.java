@@ -342,7 +342,6 @@ public class CubixGame extends BaseGame {
 			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
 			ghostSound.play();
 		}
-
 	}
 
 	public void releaseSounds() {
@@ -683,7 +682,7 @@ public class CubixGame extends BaseGame {
 			e.printStackTrace();
 		}
 		
-		//Get starting tile
+		// Get starting tile
 		for(int i = 0; i < dimension; i++){
 			for(int j = 0; j < dimension; j++){
 				if(tiles[i][j].getTileType() == 7)
