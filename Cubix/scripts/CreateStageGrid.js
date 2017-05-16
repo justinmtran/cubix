@@ -1,10 +1,7 @@
 /*
-	0 - Island Stage 1	 
-	1 - Island Stage 2 	
-	2 - Snow Stage 1 	
-	3 - Snow Stage 2 	
-	4 - Haunted Stage 1 
-	5 - Haunted Stage 2 
+	0 - Island Stage 
+	1 - Snow Stage 		
+	2 - Haunted Stage 
 	
 	Tile Type: 
 	0 - Terrain Tile
