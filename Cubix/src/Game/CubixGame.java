@@ -638,6 +638,9 @@ public class CubixGame extends BaseGame {
 			case 8: //Finish tile, WIN
 				System.out.println("FINISH!");
 				break;
+			case 9:
+				p.Slide();
+				break;
 			default://Bad tile, reset player
 				player.reset();
 				break;

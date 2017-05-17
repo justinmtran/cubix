@@ -1,16 +1,20 @@
 package Game;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import GameEngine.ChasePlayer;
 import GameEngine.GhostDefault;
 import GameEngine.PlayerNear;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Vector3D;
+import GameEngine.CollisionEvent;
 import sage.ai.behaviortrees.BTCompositeType;
 import sage.ai.behaviortrees.BTCondition;
 import sage.ai.behaviortrees.BTSequence;
 import sage.ai.behaviortrees.BehaviorTree;
+import sage.event.IEventListener;
+import sage.event.IGameEvent;
 import sage.scene.Group;
 import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
@@ -19,7 +23,7 @@ import sage.scene.state.TextureState;
 import sage.texture.Texture;
 import sage.texture.TextureManager;
 
-public class NPCGhostController extends Group{
+public class NPCGhostController extends Group implements IEventListener{
 	private PlayerAvatar player;
 	private Group ghost;
 	
@@ -137,6 +141,13 @@ public class NPCGhostController extends Group{
 		}
 
 	}
+	
+	public boolean handleEvent(IGameEvent event)
+	 {
+		CollisionEvent collision = (CollisionEvent)event;
+		collision.getObject().reset();
+		return true;
+	 }
 	
 }
 

@@ -76,7 +76,14 @@ public class PlayerAvatar extends Group{
 	{
 		if(!isMoving)
 		{	
-			rot = rotAxis.mult(this.getLocalRotation().inverse());
+			if(rotAxis != null)
+			{
+				rot = rotAxis.mult(this.getLocalRotation().inverse());
+			}
+			else
+			{
+				rot = null;
+			}
 			translation = trans;
 			
 			Tile newTile = game.getTile(i + (int)translation.getX(), j + (int)translation.getZ());
@@ -88,40 +95,45 @@ public class PlayerAvatar extends Group{
 				{
 					client.sendMoveMessage(rotAxis, trans);
 				}
-				Matrix3D rotationMatrix = new Matrix3D();
-				rotationMatrix.rotate(-90, rotAxis);
 				
-				for(int i = 0; i<6; i++)
+				if(rotAxis != null)
 				{
-					faces[i] = faces[i].mult(rotationMatrix).normalize();
+					Matrix3D rotationMatrix = new Matrix3D();
+					rotationMatrix.rotate(-90, rotAxis);
+					
+					for(int i = 0; i<6; i++)
+					{
+						faces[i] = faces[i].mult(rotationMatrix).normalize();
+					}
+					String bottomColor;
+					switch(getBottomFace())
+					{
+					case 3:
+						bottomColor = "GREEN";
+						break;
+					case 2:
+						bottomColor = "BLUE";
+						break;
+					case 5: 
+						bottomColor = "WHITE";
+						break;
+					case 4:
+						bottomColor = "YELLOW";
+						break;
+					case 1:
+						bottomColor = "ORANGE";
+						break;
+					case 0:
+						bottomColor = "RED";
+						break;
+					default:
+						bottomColor = "ERROR";
+						break;			
+					}
+								
+					System.out.println("Bottom Face: " + bottomColor);
 				}
-				String bottomColor;
-				switch(getBottomFace())
-				{
-				case 3:
-					bottomColor = "GREEN";
-					break;
-				case 2:
-					bottomColor = "BLUE";
-					break;
-				case 5: 
-					bottomColor = "WHITE";
-					break;
-				case 4:
-					bottomColor = "YELLOW";
-					break;
-				case 1:
-					bottomColor = "ORANGE";
-					break;
-				case 0:
-					bottomColor = "RED";
-					break;
-				default:
-					bottomColor = "ERROR";
-					break;			
-				}
-							
-				System.out.println("Bottom Face: " + bottomColor);
+
 			}
 			
 
@@ -148,7 +160,10 @@ public class PlayerAvatar extends Group{
 			Vector3D translationAmt = translation.mult(rotationAmt/45);
 			
 			this.translate((float)translationAmt.getX(), (float)translationAmt.getY(), (float)translationAmt.getZ());
-			this.rotate(rotationAmt, rot);
+			if(rot != null)
+			{
+				this.rotate(rotationAmt, rot);
+			}
 			
 			game.updateVerticalPosition(this);
 			
@@ -206,6 +221,11 @@ public class PlayerAvatar extends Group{
 	protected boolean getIsMoving()
 	{
 		return isMoving;
+	}
+	
+	public void Slide()
+	{
+		this.move(null, translation);
 	}
 	
 }
