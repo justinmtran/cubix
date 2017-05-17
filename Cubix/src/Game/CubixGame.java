@@ -61,14 +61,14 @@ import sage.texture.TextureManager;
 /*
 	STAGE_DIMENSION: 
 	Island Stage 	- 0 (8x8)
-	Snow Stage  	- 1 (20x20)
-	Haunted Stage   - 2 (15x15)
+	Snow Stage  	- 1 (10x10)
+	Haunted Stage   - 2 (12x12)
 */
 
 public class CubixGame extends BaseGame {
 	// Constants
 	private final int MAX_SNOW = 40;
-	private final int[] STAGE_DIMENSION = { 8,20,15 };
+	private final int[] STAGE_DIMENSION = { 8,10,12 };
 
 	// Mechanical Objects
 	private CubixCameraController camController;
@@ -147,8 +147,8 @@ public class CubixGame extends BaseGame {
 		// create gridmap based on menu option
 		switch(levelThemeName){
 			case "Island": stageSelect(0); break; 
-			case "Snow": stageSelect(2); break; 
-			case "Halloween": stageSelect(4); break;
+			case "Snow": stageSelect(1); break; 
+			case "Halloween": stageSelect(2); break;
 		}
 		
 		createScene();
@@ -191,7 +191,7 @@ public class CubixGame extends BaseGame {
 	}
 
 	private void createPlayer() {
-		playerTextureName = "images/textures/objects/" + playerTextureName + ".png";
+		playerTextureName = "textures/objects/" + playerTextureName + ".png";
 		player = new PlayerAvatar(playerTextureName, this, gameClient, startTile);
 		player.setLocalTranslation((Matrix3D)startTile.getLocalTranslation().clone());
 		player.translate(0, 1, 0);
@@ -362,7 +362,7 @@ public class CubixGame extends BaseGame {
 			String slash = File.separator;
 			model = loader.loadModel("objects" + slash + "Lighthouse.mesh.xml",
 					"materials" + slash + "Lighthouse.material", "objects" + slash + "Lighthouse.skeleton.xml",
-					"images" + slash + "textures" + slash + "objects" + slash, ApplyMode.Replace);
+					"textures" + slash + "objects" + slash, ApplyMode.Replace);
 			model.updateGeometricState(0, true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -390,17 +390,17 @@ public class CubixGame extends BaseGame {
 
 	private void initTerrain() {
 		// create height map and terrain block
-		ImageBasedHeightMap myHeightMap = new ImageBasedHeightMap("images/terrains/height_map.jpg");
+		ImageBasedHeightMap myHeightMap = new ImageBasedHeightMap("terrains/" + levelThemeName + "_height_map.jpg");
 		imgTerrain = createTerBlock(myHeightMap);
 		
 		// create grid terrain block
-		myHeightMap = new ImageBasedHeightMap("images/terrains/grid_map.jpg");
+		myHeightMap = new ImageBasedHeightMap("terrains/" + levelThemeName + "_grid_map.jpg");
 		gridTerrain = createTerBlock(myHeightMap);
 
 		// create texture and texture state to color the TERRAIN
 		TextureState stateTerrain;
 		Texture stageTerrainTexture = TextureManager
-				.loadTexture2D("images/textures/stage_" + levelThemeName + "/" + levelThemeName + "_texture.jpg");
+				.loadTexture2D("textures/stage_" + levelThemeName + "/" + levelThemeName + "_texture.jpg");
 		stageTerrainTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 		stateTerrain = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
 		stateTerrain.setTexture(stageTerrainTexture, 0);
@@ -409,7 +409,7 @@ public class CubixGame extends BaseGame {
 		// create texture and texture state to color the GRID TERRAIN
 		TextureState stateGridTerrain;
 		Texture gridTexture = TextureManager
-				.loadTexture2D("images/textures/stage_" + levelThemeName + "/" + levelThemeName + "_grid" +"_texture.jpg");
+				.loadTexture2D("textures/stage_" + levelThemeName + "/" + levelThemeName + "_grid" +"_texture.jpg");
 		gridTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 		stateGridTerrain = (TextureState) display.getRenderer().createRenderState(RenderState.RenderStateType.Texture);
 		stateGridTerrain.setTexture(gridTexture, 0);
