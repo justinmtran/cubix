@@ -16,32 +16,32 @@ public class Theme extends SkyBox{
 	}
 	
 	public void islandTheme(){
-		north = TextureManager.loadTexture2D("images/textures/stage_island/island_north.jpg");
-		south = TextureManager.loadTexture2D("images/textures/stage_island/island_south.jpg");
-		up = TextureManager.loadTexture2D("images/textures/stage_island/island_up.jpg");
-		down = TextureManager.loadTexture2D("images/textures/stage_island/island_down.jpg");
-		east = TextureManager.loadTexture2D("images/textures/stage_island/island_east.jpg"); 
-		west = TextureManager.loadTexture2D("images/textures/stage_island/island_west.jpg");
+		north = TextureManager.loadTexture2D("textures/stage_island/island_north.jpg");
+		south = TextureManager.loadTexture2D("textures/stage_island/island_south.jpg");
+		up = TextureManager.loadTexture2D("textures/stage_island/island_up.jpg");
+		down = TextureManager.loadTexture2D("textures/stage_island/island_down.jpg");
+		east = TextureManager.loadTexture2D("textures/stage_island/island_east.jpg"); 
+		west = TextureManager.loadTexture2D("textures/stage_island/island_west.jpg");
 		setTextures();
 	}
 	
 	public void snowTheme(BaseGame game){
-		north = TextureManager.loadTexture2D("images/textures/stage_snow/snow_north.jpg");
-		south = TextureManager.loadTexture2D("images/textures/stage_snow/snow_south.jpg");
-		up = TextureManager.loadTexture2D("images/textures/stage_snow/snow_up.jpg");
-		down = TextureManager.loadTexture2D("images/textures/stage_snow/snow_down.jpg");
-		east = TextureManager.loadTexture2D("images/textures/stage_snow/snow_east.jpg"); 
-		west = TextureManager.loadTexture2D("images/textures/stage_snow/snow_west.jpg");
+		north = TextureManager.loadTexture2D("textures/stage_snow/snow_north.jpg");
+		south = TextureManager.loadTexture2D("textures/stage_snow/snow_south.jpg");
+		up = TextureManager.loadTexture2D("textures/stage_snow/snow_up.jpg");
+		down = TextureManager.loadTexture2D("textures/stage_snow/snow_down.jpg");
+		east = TextureManager.loadTexture2D("textures/stage_snow/snow_east.jpg"); 
+		west = TextureManager.loadTexture2D("textures/stage_snow/snow_west.jpg");
 		setTextures();
 	}
 	
 	public void halloweenTheme(){
-		north = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_north.jpg");
-		south = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_south.jpg");
-		up = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_up.jpg");
-		down = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_down.jpg");
-		east = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_east.jpg"); 
-		west = TextureManager.loadTexture2D("images/textures/stage_halloween/halloween_west.jpg");
+		north = TextureManager.loadTexture2D("textures/stage_halloween/halloween_north.jpg");
+		south = TextureManager.loadTexture2D("textures/stage_halloween/halloween_south.jpg");
+		up = TextureManager.loadTexture2D("textures/stage_halloween/halloween_up.jpg");
+		down = TextureManager.loadTexture2D("textures/stage_halloween/halloween_down.jpg");
+		east = TextureManager.loadTexture2D("textures/stage_halloween/halloween_east.jpg"); 
+		west = TextureManager.loadTexture2D("textures/stage_halloween/halloween_west.jpg");
 		setTextures();
 	}
 	

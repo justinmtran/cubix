@@ -69,56 +69,63 @@ public class Tile extends Group{
 				break; 
 			}
 			case 1:{
-				texture = TextureManager.loadTexture2D("images/textures/objects/red-tile.png");
+				texture = TextureManager.loadTexture2D("textures/objects/red-tile.png");
 				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 				tile.setTexture(texture);
 				this.tileType = tileType; 
 				break;
 			}
 			case 2:{
-				texture = TextureManager.loadTexture2D("images/textures/objects/orange-tile.png");
+				texture = TextureManager.loadTexture2D("textures/objects/orange-tile.png");
 				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 				tile.setTexture(texture);
 				this.tileType = tileType; 
 				break;
 			}
 			case 3:{
-				texture = TextureManager.loadTexture2D("images/textures/objects/blue-tile.png");
+				texture = TextureManager.loadTexture2D("textures/objects/blue-tile.png");
 				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 				tile.setTexture(texture);
 				this.tileType = tileType; 
 				break;
 			}
 			case 4:{
-				texture = TextureManager.loadTexture2D("images/textures/objects/green-tile.png");
+				texture = TextureManager.loadTexture2D("textures/objects/green-tile.png");
 				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 				tile.setTexture(texture);
 				this.tileType = tileType; 
 				break;
 			}
 			case 5:{
-				texture = TextureManager.loadTexture2D("images/textures/objects/yellow-tile.png");
+				texture = TextureManager.loadTexture2D("textures/objects/yellow-tile.png");
 				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 				tile.setTexture(texture);
 				this.tileType = tileType; 
 				break;
 			}
 			case 6:{
-				texture = TextureManager.loadTexture2D("images/textures/objects/white-tile.png");
+				texture = TextureManager.loadTexture2D("textures/objects/white-tile.png");
 				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 				tile.setTexture(texture);
 				this.tileType = tileType; 
 				break;
 			}
 			case 7:{
-				texture = TextureManager.loadTexture2D("images/textures/objects/start-tile.png");
+				texture = TextureManager.loadTexture2D("textures/objects/start-tile.png");
 				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 				tile.setTexture(texture);
 				this.tileType = tileType; 
 				break;
 			}
 			case 8:{
-				texture = TextureManager.loadTexture2D("images/textures/objects/end-tile.png");
+				texture = TextureManager.loadTexture2D("textures/objects/end-tile.png");
+				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
+				tile.setTexture(texture);
+				this.tileType = tileType; 
+				break;
+			}
+			case 9:{
+				texture = TextureManager.loadTexture2D("textures/objects/ice-tile.png");
 				texture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 				tile.setTexture(texture);
 				this.tileType = tileType; 

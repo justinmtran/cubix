@@ -29,7 +29,7 @@ public class SettingsDialog extends JDialog{
 	private JCheckBox chckbxCreateServer = new JCheckBox("Create Server");
 	JComboBox comboBoxTextureName = new JComboBox(textureNames);
 	JComboBox comboBoxThemeName = new JComboBox(themeNames);
-	JLabel lblCubeImage = new JLabel(new ImageIcon(new ImageIcon("images/textures/objects/" + comboBoxTextureName.getSelectedItem() + ".png").getImage().getScaledInstance(120, 120, java.awt.Image.SCALE_SMOOTH)));
+	JLabel lblCubeImage = new JLabel(new ImageIcon(new ImageIcon("textures/objects/" + comboBoxTextureName.getSelectedItem() + ".png").getImage().getScaledInstance(120, 120, java.awt.Image.SCALE_SMOOTH)));
 	JCheckBox chckbxMultiplayer = new JCheckBox("Multiplayer");
 
 	/**
@@ -116,7 +116,7 @@ public class SettingsDialog extends JDialog{
 		gbc_comboBoxTextureName.gridy = 6;
 		comboBoxTextureName.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lblCubeImage.setIcon(new ImageIcon(new ImageIcon("images/textures/objects/" + comboBoxTextureName.getSelectedItem() + ".png").getImage().getScaledInstance(120, 120, java.awt.Image.SCALE_SMOOTH)));
+				lblCubeImage.setIcon(new ImageIcon(new ImageIcon("textures/objects/" + comboBoxTextureName.getSelectedItem() + ".png").getImage().getScaledInstance(120, 120, java.awt.Image.SCALE_SMOOTH)));
 			}
 		});
 		contentPanel.add(comboBoxTextureName, gbc_comboBoxTextureName);
