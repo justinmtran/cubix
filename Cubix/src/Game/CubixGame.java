@@ -198,7 +198,7 @@ public class CubixGame extends BaseGame {
 		if (levelThemeName.equals("Halloween")) {
 			// Add ghost
 			ghost = new NPCGhostController(player, this);
-			ghost.translate(10, 3, 10);
+			ghost.translate(11, 3, 23);
 			ghost.updateWorldBound();
 			ghost.scale(0.35f, 0.35f, 0.35f);
 			ghost.updateGeometricState(0, true);
@@ -379,8 +379,17 @@ public class CubixGame extends BaseGame {
 			ghostSound.setMinDistance(5f);
 			ghostSound.setRollOff(5.0f);
 			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
-			ghostSound.play();
 		}
+	}
+	
+	public void playGhostSound()
+	{
+		ghostSound.play();
+	}
+	
+	public void stopGhostSound()
+	{
+		ghostSound.stop();
 	}
 
 	public void releaseSounds() {

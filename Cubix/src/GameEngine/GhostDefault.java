@@ -14,6 +14,7 @@ public class GhostDefault extends BTAction
 
 	protected BTStatus update(float time) {
 		controller.setAnimation("Default");
+		controller.nextWaypoint();
 		return BTStatus.BH_SUCCESS;
 	}
 }

@@ -1,9 +1,12 @@
 package Game;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import GameEngine.ChasePlayer;
 import GameEngine.GhostDefault;
+import GameEngine.MoveToWaypoint;
+import GameEngine.NotAtWaypoint;
 import GameEngine.PlayerNear;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
@@ -28,16 +31,20 @@ public class NPCGhostController extends Group implements IEventListener{
 	private Group ghost;
 	
 	BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
-	private boolean chase;
+	private boolean chase, moving;
 	private float lastThinkUpdateTime;
 	private float lastTickUpdateTime;
 	private int speed = 2;
+	private int waypointNumber, waypointNumberMod;
 	private String currentAnimation = "";
+	private ArrayList<Vector3D> waypointList = new ArrayList<Vector3D>();
 	Texture defaultTexture, chaseTexture;
+	private CubixGame game;
 	
-	public NPCGhostController(PlayerAvatar p, CubixGame game)
+	public NPCGhostController(PlayerAvatar p, CubixGame g)
 	{
 		player = p;
+		game = g;
 		
 		defaultTexture = TextureManager.loadTexture2D("textures/objects/ghost-texture-default.png");
 		defaultTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
@@ -48,7 +55,12 @@ public class NPCGhostController extends Group implements IEventListener{
 		ghost = game.getGhost();
 		ghost.updateGeometricState(0, true);
 
-
+		waypointList.add(new Vector3D(23,3,23));
+		waypointList.add(new Vector3D(23,3,15));
+		waypointList.add(new Vector3D(0,3,15));
+		waypointList.add(new Vector3D(0,3,23));
+		waypointNumberMod = waypointList.size();
+		
 
 		Iterator<SceneNode> itr = ghost.getChildren();
 		while(itr.hasNext())
@@ -69,14 +81,24 @@ public class NPCGhostController extends Group implements IEventListener{
 		bt.insertAtRoot(new BTSequence(10));
 		bt.insert(10, new PlayerNear(ghost, player, false));
 		bt.insert(10, new ChasePlayer(this));
+		
 		bt.insertAtRoot(new BTSequence(20));
-		bt.insert(20, new GhostDefault(this));
+		bt.insert(20, new NotAtWaypoint(this, false));
+		bt.insert(20, new MoveToWaypoint(this));
+		
+		bt.insertAtRoot(new BTSequence(30));
+		bt.insert(30, new GhostDefault(this));
 		
 	}
 	
 	public void setChase(boolean b)
 	{
 		chase = b;
+	}
+	
+	public void setMoving(boolean b)
+	{
+		moving = b;
 	}
 	
 	public void update(float time)
@@ -86,6 +108,15 @@ public class NPCGhostController extends Group implements IEventListener{
 			Vector3D ghostLocation = ghost.getWorldTranslation().getCol(3);
 			Vector3D playerLocation = player.getWorldTranslation().getCol(3);
 			Vector3D direction = playerLocation.minus(ghostLocation).normalize();
+			this.translate(speed*(float)direction.getX()*time/1000, 0, speed*(float)direction.getZ()*time/1000);
+			Matrix3D test = new Matrix3D();
+			test.rotateY(Math.toDegrees(Math.atan2(direction.getX(), direction.getZ())));
+			this.setLocalRotation(test);
+		}
+		else if(moving)
+		{
+			Vector3D ghostLocation = ghost.getWorldTranslation().getCol(3);
+			Vector3D direction = waypointList.get(waypointNumber).minus(ghostLocation).normalize();
 			this.translate(speed*(float)direction.getX()*time/1000, 0, speed*(float)direction.getZ()*time/1000);
 			Matrix3D test = new Matrix3D();
 			test.rotateY(Math.toDegrees(Math.atan2(direction.getX(), direction.getZ())));
@@ -115,6 +146,7 @@ public class NPCGhostController extends Group implements IEventListener{
 		if(lastThinkUpdateTime > 500f)
 		{
 			chase = false;
+			moving = false;
 			bt.update(lastThinkUpdateTime);
 			lastThinkUpdateTime = 0;
 		}
@@ -129,21 +161,28 @@ public class NPCGhostController extends Group implements IEventListener{
 			while(itr.hasNext())
 			{
 				Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
-				mesh.startAnimation(name);
-				
 				if(name.equals("Default"))
 				{
+					mesh.startAnimation("Default");
+					game.stopGhostSound();
 					mesh.setTexture(defaultTexture);
 				}
-				else if (name.equals("Move"))
+				else if(name.equals("Move"))
 				{
+					mesh.startAnimation("Move");
+					game.stopGhostSound();
+					mesh.setTexture(defaultTexture);
+				}
+				else if (name.equals("Chase"))
+				{
+					mesh.startAnimation("Move");
 					mesh.setTexture(chaseTexture);
+					game.playGhostSound();
 				}
 			}
 			currentAnimation = name;
 		
 		}
-
 	}
 	
 	public BoundingVolume getWorldBound()
@@ -157,8 +196,21 @@ public class NPCGhostController extends Group implements IEventListener{
 	 {
 		CollisionEvent collision = (CollisionEvent)event;
 		collision.getObject().reset();
+		Matrix3D translation = new Matrix3D();
+		translation.translate(11,3,23);
+		setLocalTranslation(translation);
 		return true;
 	 }
+	
+	public Vector3D getWaypoint()
+	{
+		return waypointList.get(waypointNumber);	
+	}
+	
+	public void nextWaypoint()
+	{
+		waypointNumber = (waypointNumber + 1) % waypointNumberMod;
+	}
 	
 }
 
