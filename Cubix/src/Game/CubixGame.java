@@ -152,7 +152,7 @@ public class CubixGame extends BaseGame {
 		if(isFullScreen)
 		{
 			//display = new DisplaySystem(1024, 768, 32, 60, isFullScreen, "sage.renderer.jogl.JOGLRenderer");
-			display = new DisplaySystem(1920, 1080, 32, 60, isFullScreen, "sage.renderer.jogl.JOGLRenderer");
+			display = new DisplaySystem(1980, 1200, 32, 60, isFullScreen, "sage.renderer.jogl.JOGLRenderer");
 		}
 		else
 		{
