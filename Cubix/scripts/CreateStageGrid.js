@@ -37,7 +37,7 @@ with(JavaPackages){
 				break;
 			}
 			case 1:{ // Snow Stage (10x10)
-				grid[0][0].setTileType(0); grid[0][1].setTileType(0); grid[0][2].setTileType(0); grid[0][3].setTileType(0); grid[0][4].setTileType(0); 
+				grid[0][1].setTileType(0); grid[0][2].setTileType(0); grid[0][5].setTileType(0); grid[0][8].setTileType(0); grid[0][9].setTileType(0); 
 				grid[1][2].setTileType(0); grid[1][3].setTileType(6); grid[1][4].setTileType(3); grid[1][6].setTileType(9); grid[1][7].setTileType(2); grid[1][8].setTileType(4); grid[1][9].setTileType(0); 
 				grid[2][0].setTileType(3); grid[2][1].setTileType(7); grid[2][2].setTileType(4); grid[2][3].setTileType(2); grid[2][4].setTileType(9); grid[2][6].setTileType(3); grid[2][7].setTileType(6); grid[2][8].setTileType(6); grid[2][9].setTileType(1); 
 				grid[3][0].setTileType(9); grid[3][4].setTileType(2); grid[3][5].setTileType(5); grid[3][6].setTileType(1); grid[3][7].setTileType(0); grid[3][8].setTileType(9); grid[3][9].setTileType(3); 

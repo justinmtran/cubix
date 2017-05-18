@@ -445,7 +445,13 @@ public class CubixGame extends BaseGame {
 
 		// apply the texture to the terrain
 		imgTerrain.setRenderState(stateTerrain);
-		imgTerrain.translate(-8, .55f, -8);
+		switch(levelThemeName)
+		{
+			case "Island": imgTerrain.translate(-8, .55f, -8); break;
+			case "Snow": imgTerrain.translate(-12, .55f, -12); break;
+			case "Halloween": imgTerrain.translate(-8, .55f, -8); break;
+		}
+		
 		addGameWorldObject(imgTerrain);
 		
 		// apply the texture to the grid terrain
@@ -522,6 +528,7 @@ public class CubixGame extends BaseGame {
 				e.printStackTrace();
 			}
 		}
+		display.close();
 	}
 
 	public void addGhost(GhostAvatar ghost) {
@@ -673,6 +680,8 @@ public class CubixGame extends BaseGame {
 				break;
 			case 9:
 				p.Slide();
+				break;
+			case 10:
 				break;
 			default://Bad tile, reset player
 				player.reset();
