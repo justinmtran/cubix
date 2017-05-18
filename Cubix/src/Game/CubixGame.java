@@ -399,7 +399,7 @@ public class CubixGame extends BaseGame {
 		
 		// load ghost npc sound effect
 		resource = audioMgr.createAudioResource("sounds/ghost.wav", AudioResourceType.AUDIO_SAMPLE);
-		ghostSound = new Sound(resource, SoundType.SOUND_EFFECT, 75, true);
+		ghostSound = new Sound(resource, SoundType.SOUND_EFFECT, 100, true);
 		ghostSound.initialize(audioMgr);
 		
 		// load and play stage's theme song
