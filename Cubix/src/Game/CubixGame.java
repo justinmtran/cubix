@@ -30,6 +30,7 @@ import GameEngine.SettingsDialog;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
+import GameEngine.CollisionEvent;
 import GameEngine.QuitGameAction;
 import sage.app.BaseGame;
 import sage.audio.AudioManagerFactory;
@@ -42,6 +43,8 @@ import sage.camera.ICamera;
 import sage.display.DisplaySettingsDialog;
 import sage.display.DisplaySystem;
 import sage.display.IDisplaySystem;
+import sage.event.EventManager;
+import sage.event.IEventManager;
 import sage.input.IInputManager;
 import sage.input.action.IAction;
 import sage.model.loader.ogreXML.OgreXMLParser;
@@ -111,7 +114,10 @@ public class CubixGame extends BaseGame {
 	// Gameworld Objects
 	private PlayerAvatar player;
 	private Theme skybox;
-
+	
+	private IEventManager eventMgr;
+	private CollisionEvent collision;
+	
 	private Sphere[] snow;
 	private float windTimer;
 	private NPCGhostController ghost;
@@ -147,6 +153,7 @@ public class CubixGame extends BaseGame {
 
 		// initialize Input Manager, Display, Renderer, and Camera.
 		im = getInputManager();
+		eventMgr = EventManager.getInstance();
 		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice device = environment.getDefaultScreenDevice();
 		if(isFullScreen)
@@ -192,9 +199,12 @@ public class CubixGame extends BaseGame {
 			// Add ghost
 			ghost = new NPCGhostController(player, this);
 			ghost.translate(10, 3, 10);
+			ghost.updateWorldBound();
 			ghost.scale(0.35f, 0.35f, 0.35f);
 			ghost.updateGeometricState(0, true);
+
 			addGameWorldObject(ghost);
+			eventMgr.addListener(ghost, CollisionEvent.class);
 		}
 		initInput();
 		initAudio();
@@ -224,6 +234,7 @@ public class CubixGame extends BaseGame {
 		player.setLocalTranslation((Matrix3D)startTile.getLocalTranslation().clone());
 		player.translate(0, 1, 0);
 		player.scale(.8f, .8f, .8f);
+		player.updateWorldBound();
 		addGameWorldObject(player);
 		if (gameClient != null) {
 			gameClient.sendCreateMessage(getPosition(), getPlayerTextureName());
@@ -598,6 +609,12 @@ public class CubixGame extends BaseGame {
 		if (levelThemeName.equalsIgnoreCase("Halloween")) {
 			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
 			ghost.npcLoop(time);
+			
+			if(ghost.getWorldBound().intersects(player.getWorldBound()))
+			{
+				 collision = new CollisionEvent(player);
+				 eventMgr.triggerEvent(collision);
+			}
 		}
 
 		if (levelThemeName.equals("Island")) {

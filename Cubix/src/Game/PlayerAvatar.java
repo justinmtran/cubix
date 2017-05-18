@@ -9,6 +9,7 @@ import graphicslib3D.Vector3D;
 import sage.model.loader.OBJLoader;
 import sage.scene.Group;
 import sage.scene.TriMesh;
+import sage.scene.bounding.BoundingVolume;
 import sage.scene.shape.Line;
 import sage.terrain.TerrainBlock;
 import sage.texture.Texture;
@@ -69,6 +70,8 @@ public class PlayerAvatar extends Group{
 		cubeTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 		cube.setTexture(cubeTexture);
 		cube.updateLocalBound();
+		cube.updateWorldBound();
+		//cube.setShowBound(true);
 		this.addChild(cube);
 	}
 	
@@ -216,6 +219,11 @@ public class PlayerAvatar extends Group{
 		}
 
 		return -1;
+	}
+	
+	public BoundingVolume getWorldBound()
+	{
+		return cube.getWorldBound();
 	}
 	
 	protected boolean getIsMoving()
