@@ -40,7 +40,6 @@ import sage.audio.IAudioManager;
 import sage.audio.Sound;
 import sage.audio.SoundType;
 import sage.camera.ICamera;
-import sage.display.DisplaySettingsDialog;
 import sage.display.DisplaySystem;
 import sage.display.IDisplaySystem;
 import sage.event.EventManager;
@@ -285,7 +284,7 @@ public class CubixGame extends BaseGame {
 	private void createScene() {
 		Iterator<SceneNode> itr;
 		// add Skybox
-		skybox = new Theme("Background", 20.0f, 20.0f, 20.0f);
+		skybox = new Theme("Background", 15.0f, 15.0f, 15.0f);
 		switch (levelThemeName) {
 		case "Island":
 			skybox.islandTheme();
@@ -332,6 +331,7 @@ public class CubixGame extends BaseGame {
 			break;
 		case "Halloween":
 			skybox.halloweenTheme();
+			skybox.translate(0, 10, 0);
 			addGameWorldObject(skybox);
 
 			break;
