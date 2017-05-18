@@ -52,6 +52,7 @@ import sage.physics.IPhysicsEngine;
 import sage.physics.PhysicsEngineFactory;
 import sage.renderer.IRenderer;
 import sage.scene.Group;
+import sage.scene.HUDString;
 import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
 import sage.scene.shape.Line;
@@ -84,6 +85,9 @@ public class CubixGame extends BaseGame {
 	private IDisplaySystem display;
 	private IInputManager im;
 	private IPhysicsEngine pe;
+	
+	private HUDString timeDisplay;
+	private float timeTotal;
 
 	// Network Objects
 	private String serverAddress;
@@ -134,6 +138,7 @@ public class CubixGame extends BaseGame {
 
 	protected void initGame() {
 		// Get Option Selections (Network options, Player texture, Level theme)
+		getDisplaySystem().setTitle("CUBIX");
 		getOptions();
 		initNetwork();
 
@@ -143,7 +148,6 @@ public class CubixGame extends BaseGame {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			gameClient.processPackets();
@@ -164,7 +168,7 @@ public class CubixGame extends BaseGame {
 		{
 			display = getDisplaySystem();
 		}
-		display.setTitle("CUBIX");
+		
 
 		renderer = display.getRenderer();
 		cam = renderer.getCamera();
@@ -197,7 +201,7 @@ public class CubixGame extends BaseGame {
 		if (levelThemeName.equals("Halloween")) {
 			// Add ghost
 			ghost = new NPCGhostController(player, this);
-			ghost.translate(10, 3, 10);
+			ghost.translate(11, 3, 23);
 			ghost.updateWorldBound();
 			ghost.scale(0.35f, 0.35f, 0.35f);
 			ghost.updateGeometricState(0, true);
@@ -207,6 +211,10 @@ public class CubixGame extends BaseGame {
 		}
 		initInput();
 		initAudio();
+		
+		 timeDisplay = new HUDString("Time: " + timeTotal);
+		 timeDisplay.setLocation(0,0.10);
+		 cam.addToHUD(timeDisplay);
 	}
 
 	private void getOptions() {
@@ -379,8 +387,17 @@ public class CubixGame extends BaseGame {
 			ghostSound.setMinDistance(5f);
 			ghostSound.setRollOff(5.0f);
 			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
-			ghostSound.play();
 		}
+	}
+	
+	public void playGhostSound()
+	{
+		ghostSound.play();
+	}
+	
+	public void stopGhostSound()
+	{
+		ghostSound.stop();
 	}
 
 	public void releaseSounds() {
@@ -543,6 +560,8 @@ public class CubixGame extends BaseGame {
 
 	public void addGhost(GhostAvatar ghost) {
 		addGameWorldObject(ghost);
+		player.reset();
+		timeTotal = 0;
 		// executeScript();
 	}
 
@@ -571,6 +590,12 @@ public class CubixGame extends BaseGame {
 	}
 
 	public void update(float time) {
+		
+		 //Initialize HUD objects
+		 timeTotal += time;
+		 timeDisplay.setText(String.format("Time: %1$.1f", timeTotal/1000));
+		 
+		 
 		Iterator<SceneNode> itr;
 		if (levelThemeName.equals("Snow")) {
 			// WIND PHYSICS
@@ -693,6 +718,11 @@ public class CubixGame extends BaseGame {
 				break;
 			case 8: //Finish tile, WIN
 				System.out.println("FINISH!");
+				JOptionPane.showMessageDialog(null,
+					    "Finished in: " + String.format("%1$.1f", timeTotal/1000) + " seconds.  Press OK to quit",
+					    "WIN",
+					    JOptionPane.PLAIN_MESSAGE);
+				System.exit(1);
 				break;
 			case 9:
 				p.Slide();

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
 
+import javax.swing.JOptionPane;
+
 import Game.CubixGame;
 import Game.GhostAvatar;
 import graphicslib3D.Matrix3D;
@@ -46,6 +48,11 @@ public class GameClient extends GameConnectionClient{
 			if(msgTokens[1].compareTo("failure")== 0)
 			{
 				game.setIsConnected(false);
+				JOptionPane.showMessageDialog(null,
+					    "Connection failed",
+					    "Error",
+					    JOptionPane.PLAIN_MESSAGE);
+				System.exit(1);
 			}
 		
 		}
@@ -235,6 +242,7 @@ public class GameClient extends GameConnectionClient{
 	public void createGhostAvatar(UUID id, Vector3D position, String textureName)
 	{
 		GhostAvatar newGhost = new GhostAvatar(textureName, position, id, game, game.getStartTile());
+		newGhost.scale(.5f, .5f, .5f);
 		ghostAvatars.add(newGhost);
 		game.addGhost(newGhost);
 		game.updateVerticalPosition(newGhost);

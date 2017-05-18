@@ -1,27 +1,25 @@
 package GameEngine;
 
 
+import Game.NPCGhostController;
 import Game.PlayerAvatar;
 import graphicslib3D.Vector3D;
 import sage.ai.behaviortrees.BTCondition;
 import sage.scene.Group;
 
-public class PlayerNear extends BTCondition
+public class NotAtWaypoint extends BTCondition
 {
-	private Group ghost;
-	private PlayerAvatar player;
-	public PlayerNear(Group g, PlayerAvatar p, boolean toNegate)
+	private NPCGhostController ghost;
+	public NotAtWaypoint(NPCGhostController g, boolean toNegate)
 	{
 		super(toNegate);	
 		ghost = g;
-		player = p;
 	}
 
 	protected boolean check() {
-
 		Vector3D location = ghost.getWorldTranslation().getCol(3); 
-		Vector3D location2 = location.minus(player.getWorldTranslation().getCol(3));
-		if(location2.magnitude() < 9)
+		Vector3D location2 = location.minus(ghost.getWaypoint());
+		if(location2.magnitude() > 1)
 		{
 			return true;
 		}
