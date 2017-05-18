@@ -2,7 +2,6 @@ package Game;
 
 import sage.app.BaseGame;
 import sage.scene.SkyBox;
-import sage.terrain.TerrainBlock;
 import sage.texture.Texture;
 import sage.texture.TextureManager;
 
@@ -43,26 +42,6 @@ public class Theme extends SkyBox{
 		east = TextureManager.loadTexture2D("textures/stage_halloween/halloween_east.jpg"); 
 		west = TextureManager.loadTexture2D("textures/stage_halloween/halloween_west.jpg");
 		setTextures();
-	}
-	
-	public void factoryTheme(){
-		
-	}
-	
-	public TerrainBlock getIslandTerrain(){
-		return null; 
-	}
-	
-	public TerrainBlock getSnowTerrain(){
-		return null; 
-	}
-	
-	public TerrainBlock getHauntedTerrain(){
-		return null; 
-	}
-	
-	public TerrainBlock getFactoryTerrain(){
-		return null; 
 	}
 	
 	// set all 6 quadrants of skybox
