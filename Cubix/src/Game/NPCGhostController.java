@@ -1,12 +1,12 @@
 package Game;
 
 import java.util.Iterator;
-import java.util.Random;
 
 import GameEngine.ChasePlayer;
 import GameEngine.GhostDefault;
 import GameEngine.PlayerNear;
 import graphicslib3D.Matrix3D;
+import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
 import GameEngine.CollisionEvent;
 import sage.ai.behaviortrees.BTCompositeType;
@@ -18,8 +18,8 @@ import sage.event.IGameEvent;
 import sage.scene.Group;
 import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
-import sage.scene.state.RenderState;
-import sage.scene.state.TextureState;
+import sage.scene.bounding.BoundingSphere;
+import sage.scene.bounding.BoundingVolume;
 import sage.texture.Texture;
 import sage.texture.TextureManager;
 
@@ -47,14 +47,18 @@ public class NPCGhostController extends Group implements IEventListener{
 		
 		ghost = game.getGhost();
 		ghost.updateGeometricState(0, true);
-		this.addChild(ghost);
-		
+
+
+
 		Iterator<SceneNode> itr = ghost.getChildren();
 		while(itr.hasNext())
 		{
 			Model3DTriMesh mesh = ((Model3DTriMesh)itr.next());
 			mesh.setTexture(defaultTexture);
+			mesh.setLocalBound(new BoundingSphere(new Point3D(mesh.getLocalTranslation().getCol(3).getX(), mesh.getLocalTranslation().getCol(3).getY(), mesh.getLocalTranslation().getCol(3).getZ()), 2));
+			//mesh.setShowBound(true);
 		}
+		this.addChild(ghost);
 		
 		setupBehaviorTree();
 	}
@@ -140,6 +144,13 @@ public class NPCGhostController extends Group implements IEventListener{
 		
 		}
 
+	}
+	
+	public BoundingVolume getWorldBound()
+	{
+		
+		return ghost.getWorldBound();
+		
 	}
 	
 	public boolean handleEvent(IGameEvent event)
