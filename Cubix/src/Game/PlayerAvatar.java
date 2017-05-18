@@ -23,37 +23,47 @@ public class PlayerAvatar extends Group{
 	private Vector3D[] faces = new Vector3D[6];
 	private Line[] sides = new Line[6];
 	private CubixGame game;
+	private TriMesh cube;
+	private Tile startTile;
+	private int i,j;
 	
-	public PlayerAvatar(String textureName, CubixGame g, GameClient c)
+	public PlayerAvatar(String textureName, CubixGame g, GameClient c, Tile t)
 	{
 		client = c;
 		game = g;
+		startTile = t;
+		i = (int)(startTile.getLocalTranslation().getCol(3).getX()-1)/2;
+		j = (int)(startTile.getLocalTranslation().getCol(3).getZ()-1)/2; 
 		
 		game.updateVerticalPosition(this);
 		
-		faces[0] = new Vector3D(0,0,-1); //front
-		faces[1] = new Vector3D(0,0,1); //back
-		faces[2] = new Vector3D(1,0,0); //left
-		faces[3] = new Vector3D(-1,0,0); //right
-		faces[4] = new Vector3D(0,1,0); //up
-		faces[5] = new Vector3D(0,-1,0); //down
+		faces[3] = new Vector3D(0,0,-1); //front
+		faces[2] = new Vector3D(0,0,1); //back
+		faces[5] = new Vector3D(1,0,0); //right
+		faces[4] = new Vector3D(-1,0,0); //left
+		faces[1] = new Vector3D(0,1,0); //up
+		faces[0] = new Vector3D(0,-1,0); //down
 		
 		sides[0] = new Line(new Point3D(), new Point3D(0,0,3), Color.GREEN, 5);
 		sides[1] = new Line(new Point3D(), new Point3D(0,0,-3), Color.BLUE, 5);
-		sides[2] = new Line(new Point3D(), new Point3D(3,0,0), Color.WHITE, 5);
-		sides[3] = new Line(new Point3D(), new Point3D(-3,0,0), Color.YELLOW, 5);
+		sides[2] = new Line(new Point3D(), new Point3D(-3,0,0), Color.WHITE, 5);
+		sides[3] = new Line(new Point3D(), new Point3D(3,0,0), Color.YELLOW, 5);
 		sides[4] = new Line(new Point3D(), new Point3D(0,3,0), Color.ORANGE, 5);
 		sides[5] = new Line(new Point3D(), new Point3D(0,-3,0), Color.RED, 5);
 		
-		addChild(sides[0]);
-		addChild(sides[1]);
-		addChild(sides[2]);
-		addChild(sides[3]);
-		addChild(sides[4]);
-		addChild(sides[5]);
+		if(!(this instanceof GhostAvatar))
+		{
+			addChild(sides[0]);
+			addChild(sides[1]);
+			addChild(sides[2]);
+			addChild(sides[3]);
+			addChild(sides[4]);
+			addChild(sides[5]);
+		}
+
 		
 		OBJLoader loader = new OBJLoader();
-		TriMesh cube = loader.loadModel("objects/Cube.obj");
+		cube = loader.loadModel("objects/Cube.obj");
 
 		Texture cubeTexture = TextureManager.loadTexture2D(textureName);
 		cubeTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
@@ -64,51 +74,69 @@ public class PlayerAvatar extends Group{
 	
 	public void move(Vector3D rotAxis, Vector3D trans)
 	{
-
 		if(!isMoving)
-		{
-			rot = rotAxis.mult(this.getLocalRotation().inverse());
+		{	
+			if(rotAxis != null)
+			{
+				rot = rotAxis.mult(this.getLocalRotation().inverse());
+			}
+			else
+			{
+				rot = null;
+			}
 			translation = trans;
-			isMoving = true;
-			rotated = 0;
-			if(client != null)
-			{
-				client.sendMoveMessage(rotAxis, trans);
-			}
-			Matrix3D rotationMatrix = new Matrix3D();
-			rotationMatrix.rotate(-90, rotAxis);
 			
-			for(int i = 0; i<6; i++)
+			Tile newTile = game.getTile(i + (int)translation.getX(), j + (int)translation.getZ());
+			if( (this instanceof GhostAvatar) || newTile != null && newTile.getTileType() != 0)
 			{
-				faces[i] = faces[i].mult(rotationMatrix).normalize();
+				isMoving = true;
+				rotated = 0;
+				if(client != null)
+				{
+					client.sendMoveMessage(rotAxis, trans);
+				}
+				
+				if(rotAxis != null)
+				{
+					Matrix3D rotationMatrix = new Matrix3D();
+					rotationMatrix.rotate(-90, rotAxis);
+					
+					for(int i = 0; i<6; i++)
+					{
+						faces[i] = faces[i].mult(rotationMatrix).normalize();
+					}
+					String bottomColor;
+					switch(getBottomFace())
+					{
+					case 3:
+						bottomColor = "GREEN";
+						break;
+					case 2:
+						bottomColor = "BLUE";
+						break;
+					case 5: 
+						bottomColor = "WHITE";
+						break;
+					case 4:
+						bottomColor = "YELLOW";
+						break;
+					case 1:
+						bottomColor = "ORANGE";
+						break;
+					case 0:
+						bottomColor = "RED";
+						break;
+					default:
+						bottomColor = "ERROR";
+						break;			
+					}
+								
+					System.out.println("Bottom Face: " + bottomColor);
+				}
+
 			}
-			String bottomColor;
-			switch(getBottomFace())
-			{
-			case 0:
-				bottomColor = "GREEN";
-				break;
-			case 1:
-				bottomColor = "BLUE";
-				break;
-			case 2: 
-				bottomColor = "YELLOW";
-				break;
-			case 3:
-				bottomColor = "WHITE";
-				break;
-			case 4:
-				bottomColor = "ORANGE";
-				break;
-			case 5:
-				bottomColor = "RED";
-				break;
-			default:
-				bottomColor = "ERROR";
-				break;			
-			}
-						
-			System.out.println("Bottom Face: " + bottomColor);
+			
+
 		}
 	}
 	
@@ -132,23 +160,47 @@ public class PlayerAvatar extends Group{
 			Vector3D translationAmt = translation.mult(rotationAmt/45);
 			
 			this.translate((float)translationAmt.getX(), (float)translationAmt.getY(), (float)translationAmt.getZ());
-			this.rotate(rotationAmt, rot);
+			if(rot != null)
+			{
+				this.rotate(rotationAmt, rot);
+			}
 			
 			game.updateVerticalPosition(this);
+			
+			if(!(this instanceof GhostAvatar))
+			{
+				if(!isMoving)
+				{
+					updateGeometricState(0,true);
+					i += translation.getX();
+					j += translation.getZ();
+					System.out.println(i + ", " + j);
+					game.checkTile(this, i, j);
+				}
+			}
+
 		}
 	}
 	
 	public void reset()
 	{
-		this.setLocalTranslation(new Matrix3D());
-		this.translate(3, 0, 3);
+		this.setLocalTranslation((Matrix3D)game.getStartTile().getLocalTranslation().clone());
+		this.translate(0, 1, 0);
+		faces[3] = new Vector3D(0,0,-1); //front
+		faces[2] = new Vector3D(0,0,1); //back
+		faces[5] = new Vector3D(1,0,0); //right
+		faces[4] = new Vector3D(-1,0,0); //left
+		faces[1] = new Vector3D(0,1,0); //up
+		faces[0] = new Vector3D(0,-1,0); //down
+		i = (int)(startTile.getLocalTranslation().getCol(3).getX()-1)/2;
+		j = (int)(startTile.getLocalTranslation().getCol(3).getZ()-1)/2;
+		
 		game.updateVerticalPosition(this);
 		this.setLocalRotation(new Matrix3D());
 		if(client != null)
 		{
 			client.sendDieMessage();
 		}
-
 	}
 
 	
@@ -169,6 +221,11 @@ public class PlayerAvatar extends Group{
 	protected boolean getIsMoving()
 	{
 		return isMoving;
+	}
+	
+	public void Slide()
+	{
+		this.move(null, translation);
 	}
 	
 }

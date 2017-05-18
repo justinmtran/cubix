@@ -29,8 +29,9 @@ public class SettingsDialog extends JDialog{
 	private JCheckBox chckbxCreateServer = new JCheckBox("Create Server");
 	JComboBox comboBoxTextureName = new JComboBox(textureNames);
 	JComboBox comboBoxThemeName = new JComboBox(themeNames);
-	JLabel lblCubeImage = new JLabel(new ImageIcon(new ImageIcon("images/textures/objects/" + comboBoxTextureName.getSelectedItem() + ".png").getImage().getScaledInstance(120, 120, java.awt.Image.SCALE_SMOOTH)));
+	JLabel lblCubeImage = new JLabel(new ImageIcon(new ImageIcon("textures/objects/" + comboBoxTextureName.getSelectedItem() + ".png").getImage().getScaledInstance(120, 120, java.awt.Image.SCALE_SMOOTH)));
 	JCheckBox chckbxMultiplayer = new JCheckBox("Multiplayer");
+	private JCheckBox chckbxFullscreen = new JCheckBox("FullScreen: ");
 
 	/**
 	 * Launch the application.
@@ -50,7 +51,7 @@ public class SettingsDialog extends JDialog{
 	 */
 	public SettingsDialog() {
 		this.setModal(true);
-		setBounds(100, 100, 505, 278);
+		setBounds(100, 100, 505, 304);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -116,7 +117,7 @@ public class SettingsDialog extends JDialog{
 		gbc_comboBoxTextureName.gridy = 6;
 		comboBoxTextureName.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lblCubeImage.setIcon(new ImageIcon(new ImageIcon("images/textures/objects/" + comboBoxTextureName.getSelectedItem() + ".png").getImage().getScaledInstance(120, 120, java.awt.Image.SCALE_SMOOTH)));
+				lblCubeImage.setIcon(new ImageIcon(new ImageIcon("textures/objects/" + comboBoxTextureName.getSelectedItem() + ".png").getImage().getScaledInstance(120, 120, java.awt.Image.SCALE_SMOOTH)));
 			}
 		});
 		contentPanel.add(comboBoxTextureName, gbc_comboBoxTextureName);
@@ -187,6 +188,14 @@ public class SettingsDialog extends JDialog{
 			textFieldServerPort.setText("6000");
 		}
 		{
+			GridBagConstraints gbc_chckbxFullscreen = new GridBagConstraints();
+			gbc_chckbxFullscreen.anchor = GridBagConstraints.EAST;
+			gbc_chckbxFullscreen.insets = new Insets(0, 0, 5, 5);
+			gbc_chckbxFullscreen.gridx = 0;
+			gbc_chckbxFullscreen.gridy = 10;
+			contentPanel.add(chckbxFullscreen, gbc_chckbxFullscreen);
+		}
+		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
@@ -217,7 +226,7 @@ public class SettingsDialog extends JDialog{
 	public String[] showDialog()
 	{
 		this.setVisible(true);
-		String[] data = {(String)comboBoxThemeName.getSelectedItem(), (String)comboBoxTextureName.getSelectedItem(), String.valueOf(chckbxMultiplayer.isSelected()), String.valueOf(chckbxCreateServer.isSelected()), textFieldServerIP.getText(), textFieldServerPort.getText()};
+		String[] data = {(String)comboBoxThemeName.getSelectedItem(), (String)comboBoxTextureName.getSelectedItem(), String.valueOf(chckbxMultiplayer.isSelected()), String.valueOf(chckbxCreateServer.isSelected()), textFieldServerIP.getText(), textFieldServerPort.getText(), String.valueOf(chckbxFullscreen.isSelected())};
 		return data;
 	}
 

@@ -163,8 +163,8 @@ public class CubixCameraController{
 			// zoom-in and zoom-out restrictions
 			if(cameraDistanceFromTarget < 3f)
 				cameraDistanceFromTarget = 3f; 
-			else if(cameraDistanceFromTarget > 10f)
-				cameraDistanceFromTarget = 10f; 
+			else if(cameraDistanceFromTarget > 20f)
+				cameraDistanceFromTarget = 20f; 
 		}	
 	}
 	
