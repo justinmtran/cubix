@@ -191,7 +191,7 @@ public class CubixGame extends BaseGame {
 		if (levelThemeName.equals("Halloween")) {
 			// Add ghost
 			ghost = new NPCGhostController(player, this);
-			ghost.translate(10, 0, 10);
+			ghost.translate(10, 3, 10);
 			ghost.scale(0.35f, 0.35f, 0.35f);
 			ghost.updateGeometricState(0, true);
 			addGameWorldObject(ghost);
@@ -445,13 +445,12 @@ public class CubixGame extends BaseGame {
 
 		// apply the texture to the terrain
 		imgTerrain.setRenderState(stateTerrain);
-		switch(levelThemeName)
-		{
-			case "Island": imgTerrain.translate(-8, .55f, -8); break;
+		switch(levelThemeName){
+			case "Island": imgTerrain.translate(-8,.55f,-8); break;
 			case "Snow": imgTerrain.translate(-12, .55f, -12); break;
-			case "Halloween": imgTerrain.translate(-8, .55f, -8); break;
+			case "Halloween": imgTerrain.translate(-50, .55f, -50); break; 
 		}
-		
+
 		addGameWorldObject(imgTerrain);
 		
 		// apply the texture to the grid terrain

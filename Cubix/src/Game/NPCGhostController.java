@@ -39,10 +39,10 @@ public class NPCGhostController extends Group implements IEventListener{
 	{
 		player = p;
 		
-		defaultTexture = TextureManager.loadTexture2D("images/textures/objects/ghost-texture-default.png");
+		defaultTexture = TextureManager.loadTexture2D("textures/objects/ghost-texture-default.png");
 		defaultTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 
-		chaseTexture = TextureManager.loadTexture2D("images/textures/objects/ghost-texture-chase.png");
+		chaseTexture = TextureManager.loadTexture2D("textures/objects/ghost-texture-chase.png");
 		chaseTexture.setApplyMode(sage.texture.Texture.ApplyMode.Replace);
 		
 		ghost = game.getGhost();
