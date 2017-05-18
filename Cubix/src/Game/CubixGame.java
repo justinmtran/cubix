@@ -560,6 +560,8 @@ public class CubixGame extends BaseGame {
 
 	public void addGhost(GhostAvatar ghost) {
 		addGameWorldObject(ghost);
+		player.reset();
+		timeTotal = 0;
 		// executeScript();
 	}
 

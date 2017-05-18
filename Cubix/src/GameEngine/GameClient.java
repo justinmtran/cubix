@@ -242,6 +242,7 @@ public class GameClient extends GameConnectionClient{
 	public void createGhostAvatar(UUID id, Vector3D position, String textureName)
 	{
 		GhostAvatar newGhost = new GhostAvatar(textureName, position, id, game, game.getStartTile());
+		newGhost.scale(.5f, .5f, .5f);
 		ghostAvatars.add(newGhost);
 		game.addGhost(newGhost);
 		game.updateVerticalPosition(newGhost);
