@@ -137,8 +137,8 @@ public class CubixCameraController{
 				cameraElevation = cameraElevation % 360;
 				
 				// Y plane in between 0 and 90
-				if(cameraElevation < 0)
-					cameraElevation = 0; 
+				if(cameraElevation < 5)
+					cameraElevation = 5; 
 				else if(cameraElevation > 89)
 					cameraElevation = 89; 
 			}

@@ -103,8 +103,8 @@ public class CubixGame extends BaseGame {
 
 	// Audio Objects
 	IAudioManager audioMgr;
-	Sound ghostSound;
-	AudioResource resource1;
+	Sound ghostSound, stageTheme;
+	AudioResource resource;
 
 	// Script Objects
 	private ScriptEngine engine;
@@ -375,19 +375,25 @@ public class CubixGame extends BaseGame {
 			;
 			return;
 		}
-
-		resource1 = audioMgr.createAudioResource("sounds/ghost.wav", AudioResourceType.AUDIO_SAMPLE);
-		ghostSound = new Sound(resource1, SoundType.SOUND_EFFECT, 75, true);
+		
+		resource = audioMgr.createAudioResource("sounds/ghost.wav", AudioResourceType.AUDIO_SAMPLE);
+		ghostSound = new Sound(resource, SoundType.SOUND_EFFECT, 75, true);
 		ghostSound.initialize(audioMgr);
 
+		resource = audioMgr.createAudioResource("sounds/" + levelThemeName + "_theme.wav", AudioResourceType.AUDIO_SAMPLE);
+		stageTheme = new Sound(resource, SoundType.SOUND_MUSIC, 85, true);
+		stageTheme.initialize(audioMgr);
+		stageTheme.play();
+		
 		setEarParameters();
-
-		if (levelThemeName.equals("Halloween")) {
-			ghostSound.setMaxDistance(50f);
-			ghostSound.setMinDistance(5f);
-			ghostSound.setRollOff(5.0f);
-			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
+		
+		if(stageTheme.equals("Halloween")){
+				ghostSound.setMaxDistance(50f);
+				ghostSound.setMinDistance(5f);
+				ghostSound.setRollOff(5.0f);
+				ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
 		}
+		
 	}
 	
 	public void playGhostSound()
@@ -402,7 +408,7 @@ public class CubixGame extends BaseGame {
 
 	public void releaseSounds() {
 		ghostSound.release(audioMgr);
-		resource1.unload();
+		resource.unload();
 		audioMgr.shutdown();
 	}
 
@@ -631,6 +637,7 @@ public class CubixGame extends BaseGame {
 
 		// update sounds, ear
 		setEarParameters();
+		
 		if (levelThemeName.equalsIgnoreCase("Halloween")) {
 			ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
 			ghost.npcLoop(time);
