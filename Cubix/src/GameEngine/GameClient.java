@@ -18,7 +18,6 @@ public class GameClient extends GameConnectionClient{
 	private CubixGame game;
 	private UUID id;
 	private ArrayList<GhostAvatar> ghostAvatars;
-	private TerrainBlock terrain;
 
 	
 	public GameClient(InetAddress remAddr, int port, ProtocolType pType, CubixGame game) throws IOException
@@ -92,9 +91,18 @@ public class GameClient extends GameConnectionClient{
 		
 		if(msgTokens[0].compareTo("move")== 0)
 		{
+			Vector3D rotation;
 			UUID ghostID = UUID.fromString(msgTokens[1]);
 			GhostAvatar ghost = getGhost(ghostID);
-			Vector3D rotation = new Vector3D(Float.parseFloat(msgTokens[2]), Float.parseFloat(msgTokens[3]), Float.parseFloat(msgTokens[4]));
+			try
+			{
+				rotation = new Vector3D(Float.parseFloat(msgTokens[2]), Float.parseFloat(msgTokens[3]), Float.parseFloat(msgTokens[4]));
+			}
+			catch (Exception e)
+			{
+				rotation = null;	
+			}
+
 			Vector3D translation = new Vector3D(Float.parseFloat(msgTokens[5]), Float.parseFloat(msgTokens[6]), Float.parseFloat(msgTokens[7]));
 			ghost.move(rotation, translation);
 		}
@@ -174,7 +182,15 @@ public class GameClient extends GameConnectionClient{
 		try
 		{
 			String message = new String("move," + id.toString());
-			message += "," + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+			if(pos != null)
+			{
+				message += "," + pos.getX() + "," + pos.getY() + "," + pos.getZ();
+			}
+			else
+			{
+				message += "," + "null" + "," + "null" + "," + "null";
+			}
+			
 			message += "," + ter.getX() + "," + ter.getY() + "," + ter.getZ();
 			sendPacket(message);
 		}

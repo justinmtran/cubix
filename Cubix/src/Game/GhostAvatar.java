@@ -19,6 +19,7 @@ public class GhostAvatar extends PlayerAvatar{
 		this.id = id;
 		rotQueue = new LinkedList<Vector3D>();
 		transQueue = new LinkedList<Vector3D>();
+		this.reset();
 		
 	}
 	
@@ -40,7 +41,7 @@ public class GhostAvatar extends PlayerAvatar{
 			super.reset();
 			reset = false;
 		}
-		if(!getIsMoving() && !rotQueue.isEmpty())
+		if(!getIsMoving() && !transQueue.isEmpty())
 		{
 			super.move(rotQueue.remove(), transQueue.remove());
 		}

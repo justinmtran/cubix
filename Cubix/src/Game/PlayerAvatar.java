@@ -87,7 +87,7 @@ public class PlayerAvatar extends Group{
 			translation = trans;
 			
 			Tile newTile = game.getTile(i + (int)translation.getX(), j + (int)translation.getZ());
-			if(newTile != null && newTile.getTileType() != 0)
+			if( (this instanceof GhostAvatar) || newTile != null && newTile.getTileType() != 0)
 			{
 				isMoving = true;
 				rotated = 0;

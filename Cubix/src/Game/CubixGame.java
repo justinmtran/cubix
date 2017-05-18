@@ -128,7 +128,16 @@ public class CubixGame extends BaseGame {
 
 		// check to see if this is a game Client
 		if (gameClient != null)
+		{
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			gameClient.processPackets();
+		}
+
 
 		// initialize Input Manager, Display, Renderer, and Camera.
 		im = getInputManager();
@@ -164,7 +173,7 @@ public class CubixGame extends BaseGame {
 		if (levelThemeName.equals("Halloween")) {
 			// Add ghost
 			ghost = new NPCGhostController(player, this);
-			ghost.translate(10, 1.5f, 10);
+			ghost.translate(10, 0, 10);
 			ghost.scale(0.35f, 0.35f, 0.35f);
 			ghost.updateGeometricState(0, true);
 			addGameWorldObject(ghost);
@@ -475,7 +484,7 @@ public class CubixGame extends BaseGame {
 	}
 
 	public Vector3D getPosition() {
-		return player.getLocalTranslation().getCol(3);
+		return player.getWorldTranslation().getCol(3);
 	}
 
 	protected void shutdown() {
