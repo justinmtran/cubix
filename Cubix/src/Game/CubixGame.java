@@ -1,6 +1,8 @@
 package Game;
 
 import java.awt.Color;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -28,6 +30,7 @@ import GameEngine.SettingsDialog;
 import graphicslib3D.Matrix3D;
 import graphicslib3D.Point3D;
 import graphicslib3D.Vector3D;
+import GameEngine.QuitGameAction;
 import sage.app.BaseGame;
 import sage.audio.AudioManagerFactory;
 import sage.audio.AudioResource;
@@ -36,6 +39,8 @@ import sage.audio.IAudioManager;
 import sage.audio.Sound;
 import sage.audio.SoundType;
 import sage.camera.ICamera;
+import sage.display.DisplaySettingsDialog;
+import sage.display.DisplaySystem;
 import sage.display.IDisplaySystem;
 import sage.input.IInputManager;
 import sage.input.action.IAction;
@@ -86,6 +91,7 @@ public class CubixGame extends BaseGame {
 	private String playerTextureName;
 	private boolean isHosting;
 	private boolean isMultiplayer;
+	private boolean isFullScreen;
 	private String levelThemeName;
 	private boolean isConnected;
 
@@ -141,7 +147,19 @@ public class CubixGame extends BaseGame {
 
 		// initialize Input Manager, Display, Renderer, and Camera.
 		im = getInputManager();
-		display = getDisplaySystem();
+		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = environment.getDefaultScreenDevice();
+		if(isFullScreen)
+		{
+			//display = new DisplaySystem(1024, 768, 32, 60, isFullScreen, "sage.renderer.jogl.JOGLRenderer");
+			display = new DisplaySystem(1920, 1080, 32, 60, isFullScreen, "sage.renderer.jogl.JOGLRenderer");
+		}
+		else
+		{
+			display = getDisplaySystem();
+		}
+		display.setTitle("CUBIX");
+
 		renderer = display.getRenderer();
 		cam = renderer.getCamera();
 		cam.setPerspectiveFrustum(60, 1, 1, 1000);
@@ -192,6 +210,7 @@ public class CubixGame extends BaseGame {
 			isHosting = new Boolean(data[3]);
 			serverAddress = data[4];
 			serverPort = Integer.parseInt(data[5]);
+			isFullScreen = new Boolean(data[6]);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Invalid Selection");
 			System.exit(1);
@@ -477,6 +496,11 @@ public class CubixGame extends BaseGame {
 		IAction moveS = new MoveDownKey(player, gameClient, imgTerrain);
 		im.associateAction(kbName, net.java.games.input.Component.Identifier.Key.S, moveS,
 				IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		 
+		IAction quitGame = new QuitGameAction();
+		im.associateAction(kbName,
+				 net.java.games.input.Component.Identifier.Key.ESCAPE, quitGame,
+				 IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 	}
 
 	public void setIsConnected(boolean b) {
