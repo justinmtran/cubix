@@ -22,7 +22,7 @@ import javax.swing.JLabel;
 public class SettingsDialog extends JDialog{
 
 	private final JPanel contentPanel = new JPanel();
-	String[] textureNames = {"Cube", "Cube 2"};
+	String[] textureNames = {"Default Cube", "SacState Cube"};
 	String[] themeNames = {"Island", "Snow", "Halloween"};
 	private JTextField textFieldServerIP = new JTextField();
 	private JTextField textFieldServerPort = new JTextField();

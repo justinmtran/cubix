@@ -448,7 +448,7 @@ public class CubixGame extends BaseGame {
 		switch(levelThemeName){
 			case "Island": imgTerrain.translate(-8,.55f,-8); break;
 			case "Snow": imgTerrain.translate(-12, .55f, -12); break;
-			case "Halloween": imgTerrain.translate(-50, .55f, -50); break; 
+			case "Halloween": imgTerrain.translate(-16, .65f, -16); break; 
 		}
 
 		addGameWorldObject(imgTerrain);
