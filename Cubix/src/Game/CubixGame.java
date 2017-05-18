@@ -53,6 +53,7 @@ import sage.physics.IPhysicsEngine;
 import sage.physics.PhysicsEngineFactory;
 import sage.renderer.IRenderer;
 import sage.scene.Group;
+import sage.scene.HUDString;
 import sage.scene.Model3DTriMesh;
 import sage.scene.SceneNode;
 import sage.scene.shape.Line;
@@ -85,6 +86,9 @@ public class CubixGame extends BaseGame {
 	private IDisplaySystem display;
 	private IInputManager im;
 	private IPhysicsEngine pe;
+	
+	private HUDString timeDisplay;
+	private float timeTotal;
 
 	// Network Objects
 	private String serverAddress;
@@ -144,7 +148,6 @@ public class CubixGame extends BaseGame {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			gameClient.processPackets();
@@ -208,6 +211,10 @@ public class CubixGame extends BaseGame {
 		}
 		initInput();
 		initAudio();
+		
+		 timeDisplay = new HUDString("Time: " + timeTotal);
+		 timeDisplay.setLocation(0,0.10);
+		 cam.addToHUD(timeDisplay);
 	}
 
 	private void getOptions() {
@@ -580,6 +587,12 @@ public class CubixGame extends BaseGame {
 	}
 
 	public void update(float time) {
+		
+		 //Initialize HUD objects
+		 timeTotal += time;
+		 timeDisplay.setText(String.format("Time: %1$.1f", timeTotal/1000));
+		 
+		 
 		Iterator<SceneNode> itr;
 		if (levelThemeName.equals("Snow")) {
 			// WIND PHYSICS
@@ -702,6 +715,11 @@ public class CubixGame extends BaseGame {
 				break;
 			case 8: //Finish tile, WIN
 				System.out.println("FINISH!");
+				JOptionPane.showMessageDialog(null,
+					    "Finished in: " + String.format("%1$.1f", timeTotal/1000) + " seconds.  Press OK to quit",
+					    "WIN",
+					    JOptionPane.PLAIN_MESSAGE);
+				System.exit(1);
 				break;
 			case 9:
 				p.Slide();
