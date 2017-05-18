@@ -139,6 +139,7 @@ public class CubixGame extends BaseGame {
 
 	protected void initGame() {
 		// Get Option Selections (Network options, Player texture, Level theme)
+		getDisplaySystem().setTitle("CUBIX");
 		getOptions();
 		initNetwork();
 
@@ -168,7 +169,7 @@ public class CubixGame extends BaseGame {
 		{
 			display = getDisplaySystem();
 		}
-		display.setTitle("CUBIX");
+		
 
 		renderer = display.getRenderer();
 		cam = renderer.getCamera();
