@@ -131,6 +131,12 @@ public class Tile extends Group{
 				this.tileType = tileType; 
 				break;
 			}
+			case 10:{
+				removeChild(tile);
+				tile = null; 
+				this.tileType = tileType; 
+				break; 
+			}
 		}
 	}
 }

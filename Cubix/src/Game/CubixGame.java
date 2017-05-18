@@ -75,7 +75,7 @@ import sage.texture.TextureManager;
 
 public class CubixGame extends BaseGame {
 	// Constants
-	private final int MAX_SNOW = 40;
+	private final int MAX_SNOW = 80;
 	private final int[] STAGE_DIMENSION = { 8,10,12 };
 
 	// Mechanical Objects
@@ -103,7 +103,8 @@ public class CubixGame extends BaseGame {
 
 	// Audio Objects
 	IAudioManager audioMgr;
-	Sound ghostSound, stageTheme;
+	Sound ghostSound, stageThemeSong;
+	Sound successTileSound, wrongTileSound, iceTileSound, endTileSound;
 	AudioResource resource;
 
 	// Script Objects
@@ -331,7 +332,7 @@ public class CubixGame extends BaseGame {
 			for (int i = 0; i < MAX_SNOW; i++) {
 				snow[i] = new Sphere(.09, 16, 16, Color.white);
 				Matrix3D xform = new Matrix3D();
-				xform.translate(rn.nextInt(30), rn.nextInt(15) + 10, rn.nextInt(30));
+				xform.translate(rn.nextInt(25), rn.nextInt(15) + 10, rn.nextInt(25));
 				snow[i].setLocalTranslation(xform);
 				addGameWorldObject(snow[i]);
 				snow[i].updateGeometricState(1.0f, true);
@@ -376,24 +377,45 @@ public class CubixGame extends BaseGame {
 			return;
 		}
 		
+		// load sound effect for going on the correct tile. 
+		resource = audioMgr.createAudioResource("sounds/Success_tile.wav", AudioResourceType.AUDIO_SAMPLE);
+		successTileSound = new Sound(resource, SoundType.SOUND_EFFECT, 60, false); 
+		successTileSound.initialize(audioMgr);
+		
+		// load sound effect for going on the wrong tile. 
+		resource = audioMgr.createAudioResource("sounds/Wrong_tile.wav", AudioResourceType.AUDIO_SAMPLE);
+		wrongTileSound = new Sound(resource, SoundType.SOUND_EFFECT, 70, false); 
+		wrongTileSound.initialize(audioMgr);
+		
+		// load sound effect for going on the ice tile. 
+		resource = audioMgr.createAudioResource("sounds/Ice_tile.wav", AudioResourceType.AUDIO_SAMPLE);
+		iceTileSound = new Sound(resource, SoundType.SOUND_EFFECT, 70, false); 
+		iceTileSound.initialize(audioMgr);
+		
+		// load sound effect for going on the end tile. 
+		resource = audioMgr.createAudioResource("sounds/End_tile.wav", AudioResourceType.AUDIO_SAMPLE);
+		endTileSound = new Sound(resource, SoundType.SOUND_EFFECT, 85, false); 
+		endTileSound.initialize(audioMgr);
+		
+		// load ghost npc sound effect
 		resource = audioMgr.createAudioResource("sounds/ghost.wav", AudioResourceType.AUDIO_SAMPLE);
 		ghostSound = new Sound(resource, SoundType.SOUND_EFFECT, 75, true);
 		ghostSound.initialize(audioMgr);
-
-		resource = audioMgr.createAudioResource("sounds/" + levelThemeName + "_theme.wav", AudioResourceType.AUDIO_SAMPLE);
-		stageTheme = new Sound(resource, SoundType.SOUND_MUSIC, 85, true);
-		stageTheme.initialize(audioMgr);
-		stageTheme.play();
+		
+		// load and play stage's theme song
+		resource = audioMgr.createAudioResource("sounds/" + levelThemeName + "_theme.wav", AudioResourceType.AUDIO_STREAM);
+		stageThemeSong = new Sound(resource, SoundType.SOUND_MUSIC, 85, true);
+		stageThemeSong.initialize(audioMgr);
+		stageThemeSong.play();
 		
 		setEarParameters();
 		
-		if(stageTheme.equals("Halloween")){
+		if(stageThemeSong.equals("Halloween")){
 				ghostSound.setMaxDistance(50f);
 				ghostSound.setMinDistance(5f);
 				ghostSound.setRollOff(5.0f);
 				ghostSound.setLocation(new Point3D(ghost.getWorldTranslation().getCol(3)));
 		}
-		
 	}
 	
 	public void playGhostSound()
@@ -690,12 +712,9 @@ public class CubixGame extends BaseGame {
 		levelThemeName = t;
 	}
 
-	public void updateVerticalPosition(PlayerAvatar target) {
+	public void updateVerticalPosition(PlayerAvatar target){
 		// get avatar's X and Y coord.
-		Point3D avLoc = new Point3D(target.getLocalTranslation().getCol(3)); // get
-																				// local
-																				// XYZ
-																				// coord
+		Point3D avLoc = new Point3D(target.getLocalTranslation().getCol(3)); // get local x,y,z
 		float x = (float) avLoc.getX();
 		float z = (float) avLoc.getZ();
 
@@ -709,7 +728,24 @@ public class CubixGame extends BaseGame {
 		if (desiredHeight >= -2) {
 			target.getLocalTranslation().setElementAt(1, 3, desiredHeight + 0.7);
 		}
+	}
+	
+	public void updateVerticalPositionTerrain(PlayerAvatar target){
+		// get avatar's X and Y coord.
+		Point3D avLoc = new Point3D(target.getLocalTranslation().getCol(3)); // get local x,y,z
+		float x = (float) avLoc.getX();
+		float z = (float) avLoc.getZ();
 
+		// get Y coord based of terrain's local X,Y
+		float terHeight = imgTerrain.getHeight(x, z);
+
+		// calculate new Y for avatar
+		float desiredHeight = terHeight + (float) imgTerrain.getOrigin().getY() + 0.5f;
+
+		// apply Y translation
+		if (desiredHeight >= -2) {
+			target.getLocalTranslation().setElementAt(1, 3, desiredHeight);
+		}
 	}
 	
 	//Check if player tile is valid
@@ -725,22 +761,31 @@ public class CubixGame extends BaseGame {
 				break;
 			case 8: //Finish tile, WIN
 				System.out.println("FINISH!");
+				audioMgr.stopAllSounds();
+				endTileSound.play();
 				JOptionPane.showMessageDialog(null,
 					    "Finished in: " + String.format("%1$.1f", timeTotal/1000) + " seconds.  Press OK to quit",
 					    "WIN",
 					    JOptionPane.PLAIN_MESSAGE);
+
 				System.exit(1);
 				break;
 			case 9:
+				iceTileSound.play();
 				p.Slide();
 				break;
-			case 10:
+			case 10:{
+				updateVerticalPositionTerrain(player);
 				break;
-			default://Bad tile, reset player
+			}
+			default://Wrong tile, reset player
+				wrongTileSound.play();
 				player.reset();
 				break;
 			}
 		}
+		else
+			successTileSound.play(); // correct tile landed
 	}
 	
 	public Tile getTile(int i, int j)
