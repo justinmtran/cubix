@@ -432,6 +432,11 @@ public class CubixGame extends BaseGame {
 
 	public void releaseSounds() {
 		ghostSound.release(audioMgr);
+		stageThemeSong.release(audioMgr);
+		endTileSound.release(audioMgr);
+		iceTileSound.release(audioMgr);
+		wrongTileSound.release(audioMgr);
+		successTileSound.release(audioMgr);
 		resource.unload();
 		audioMgr.shutdown();
 	}
