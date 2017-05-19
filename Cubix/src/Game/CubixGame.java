@@ -24,6 +24,8 @@ import GameEngine.GameClient;
 import GameEngine.GameServer;
 import GameEngine.MoveDownKey;
 import GameEngine.MoveLeftKey;
+import GameEngine.MoveRXAction;
+import GameEngine.MoveRYAction;
 import GameEngine.MoveRightKey;
 import GameEngine.MoveUpKey;
 import GameEngine.SettingsDialog;
@@ -534,7 +536,8 @@ public class CubixGame extends BaseGame {
 	protected void initInput() {
 		String mouseName = im.getMouseName();
 		String kbName = im.getKeyboardName();
-
+		String controller = im.getFirstGamepadName();
+		
 		// apply SAGE built-in 3P camera controller
 		camController = new CubixCameraController(cam, player, im, mouseName);
 
@@ -562,6 +565,23 @@ public class CubixGame extends BaseGame {
 		im.associateAction(kbName,
 				 net.java.games.input.Component.Identifier.Key.ESCAPE, quitGame,
 				 IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		
+		if(controller != null)
+		 {
+			IAction moveRY = new MoveRYAction(player);
+			im.associateAction(controller,
+					 net.java.games.input.Component.Identifier.Axis.RY, moveRY,
+					 IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+			
+			IAction moveRX = new MoveRXAction(player); 
+			im.associateAction(controller,
+					 net.java.games.input.Component.Identifier.Axis.RX, moveRX,
+					 IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		 }
+		 else
+		 {
+			 System.out.println("No controller detected");
+		 }
 	}
 
 	public void setIsConnected(boolean b) {
