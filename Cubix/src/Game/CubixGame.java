@@ -481,12 +481,14 @@ public class CubixGame extends BaseGame {
 
 	private void initTerrain() {
 		// create height map and terrain block
-		ImageBasedHeightMap myHeightMap = new ImageBasedHeightMap("terrains/" + levelThemeName + "_height_map.jpg");
-		imgTerrain = createTerBlock(myHeightMap);
+		ImageBasedHeightMap heightMap = new ImageBasedHeightMap("terrains/" + levelThemeName + "_height_map.jpg");
+		imgTerrain = createTerBlock(heightMap);
+		
+		
 		
 		// create grid terrain block
-		myHeightMap = new ImageBasedHeightMap("terrains/" + levelThemeName + "_grid_map.jpg");
-		gridTerrain = createTerBlock(myHeightMap);
+		heightMap = new ImageBasedHeightMap("terrains/" + levelThemeName + "_grid_map.jpg");
+		gridTerrain = createTerBlock(heightMap);
 
 		// create texture and texture state to color the TERRAIN
 		TextureState stateTerrain;

@@ -54,7 +54,7 @@ with(JavaPackages){
 				grid[1][0].setTileType(0); grid[1][2].setTileType(1); grid[1][3].setTileType(5); grid[1][4].setTileType(2); grid[1][6].setTileType(2); grid[1][7].setTileType(5); grid[1][11].setTileType(0); 
 				grid[2][0].setTileType(4); grid[2][1].setTileType(6); grid[2][2].setTileType(3); grid[2][7].setTileType(4); grid[2][8].setTileType(1); grid[2][9].setTileType(3); grid[2][10].setTileType(2); grid[2][11].setTileType(0); 
 				grid[3][0].setTileType(2); grid[3][4].setTileType(0); grid[3][10].setTileType(6); 
-				grid[4][0].setTileType(3); grid[4][1].setTileType(6); grid[4][3].setTileType(6); grid[4][4].setTileType(3); grid[4][5].setTileType(5); grid[4][6].setTileType(4); grid[4][8].setTileType(0); grid[4][10].setTileType(1); grid[4][11].setTileType(4); 
+				grid[4][0].setTileType(3); grid[4][1].setTileType(6); grid[4][8].setTileType(0); grid[4][10].setTileType(1); grid[4][11].setTileType(4); 
 				grid[5][1].setTileType(7); grid[5][2].setTileType(4); grid[5][3].setTileType(2); grid[5][6].setTileType(2); grid[5][7].setTileType(6); grid[5][8].setTileType(0); grid[5][11].setTileType(5); 
 				grid[6][1].setTileType(5); grid[6][7].setTileType(3); grid[6][8].setTileType(1); grid[6][9].setTileType(4); grid[6][10].setTileType(8); grid[6][11].setTileType(3); 
 				grid[7][1].setTileType(2); grid[7][2].setTileType(4); grid[7][3].setTileType(1); grid[7][5].setTileType(0); grid[7][10].setTileType(1); 
