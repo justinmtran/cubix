@@ -4,6 +4,7 @@ import java.util.Random;
 
 import sage.scene.Group;
 import sage.scene.shape.Cube;
+import sage.scene.shape.Pyramid;
 import sage.texture.Texture;
 import sage.texture.TextureManager;
 
@@ -25,6 +26,7 @@ public class Tile extends Group{
 	private int tileType; 
 	private Texture texture; 
 	private Cube tile;
+	private Pyramid endIndicator; 
 	
 	/**
 	 * Default Constructor, which will create a random

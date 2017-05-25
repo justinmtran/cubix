@@ -34,9 +34,9 @@ public class CubixCameraController{
 		this.avatar = avatar;
 		this.controllerName = controllerName;
 		worldUpVec = new Vector3D(0, 1, 0);
-		cameraDistanceFromTarget = 8.0f;
-		cameraAzimuth = 180; // start from BEHIND and ABOVE the target
-		cameraElevation = 20.0f; // elevation is in degrees
+		cameraDistanceFromTarget = 12.0f;
+		cameraAzimuth = 170; // start from BEHIND and ABOVE the target
+		cameraElevation = 60.0f; // elevation is in degrees
 		update(0.0f); // initialize camera state
 		setupInput(inputMgr, controllerName);
 	}

@@ -26,7 +26,7 @@ public class PlayerAvatar extends Group{
 	private CubixGame game;
 	private TriMesh cube;
 	private Tile startTile;
-	private int i,j;
+	private int i,j,numOfMoves;
 	
 	public PlayerAvatar(String textureName, CubixGame g, GameClient c, Tile t)
 	{
@@ -35,6 +35,7 @@ public class PlayerAvatar extends Group{
 		startTile = t;
 		i = (int)(startTile.getLocalTranslation().getCol(3).getX()-1)/2;
 		j = (int)(startTile.getLocalTranslation().getCol(3).getZ()-1)/2; 
+		numOfMoves = 0; 
 		
 		game.updateVerticalPosition(this);
 		
@@ -136,11 +137,12 @@ public class PlayerAvatar extends Group{
 								
 					System.out.println("Bottom Face: " + bottomColor);
 				}
-
 			}
-			
-
 		}
+	}
+	
+	public int getNumOfMoves(){
+		return numOfMoves; 
 	}
 	
 	public void update(float time)
@@ -148,6 +150,7 @@ public class PlayerAvatar extends Group{
 		float rotSpeed = 0.5f;
 		if(isMoving)
 		{
+			numOfMoves++; 
 			float rotationAmt;
 			if(rotated + time*rotSpeed >= 90)
 			{

@@ -406,7 +406,7 @@ public class CubixGame extends BaseGame {
 		
 		// load and play stage's theme song
 		resource = audioMgr.createAudioResource("sounds/" + levelThemeName + "_theme.wav", AudioResourceType.AUDIO_STREAM);
-		stageThemeSong = new Sound(resource, SoundType.SOUND_MUSIC, 85, true);
+		stageThemeSong = new Sound(resource, SoundType.SOUND_MUSIC, 80, true);
 		stageThemeSong.initialize(audioMgr);
 		stageThemeSong.play();
 		
@@ -568,6 +568,26 @@ public class CubixGame extends BaseGame {
 		im.associateAction(kbName, net.java.games.input.Component.Identifier.Key.S, moveS,
 				IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 		 
+		// initialize Left key
+		IAction moveLeft = new MoveLeftKey(player, gameClient, imgTerrain);
+		im.associateAction(kbName, net.java.games.input.Component.Identifier.Key.LEFT, moveLeft,
+				IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+
+		// initialize Right key
+		IAction moveRight = new MoveRightKey(player, gameClient, imgTerrain);
+		im.associateAction(kbName, net.java.games.input.Component.Identifier.Key.RIGHT, moveRight,
+				IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+
+		// initialize Up key
+		IAction MoveUp = new MoveUpKey(player, gameClient, imgTerrain);
+		im.associateAction(kbName, net.java.games.input.Component.Identifier.Key.UP, MoveUp,
+				IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+
+		// initialize Down key
+		IAction moveDown = new MoveDownKey(player, gameClient, imgTerrain);
+		im.associateAction(kbName, net.java.games.input.Component.Identifier.Key.DOWN, moveDown,
+				IInputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		
 		IAction quitGame = new QuitGameAction();
 		im.associateAction(kbName,
 				 net.java.games.input.Component.Identifier.Key.ESCAPE, quitGame,
@@ -646,11 +666,12 @@ public class CubixGame extends BaseGame {
 
 	public void update(float time) {
 		
-		 //Initialize HUD objects
-		 timeTotal += time;
-		 timeDisplay.setText(String.format("Time: %1$.1f", timeTotal/1000));
-		 
-		 
+		 // Run timer only if the cubed have moved at least once. 
+		if(player.getNumOfMoves() > 0){
+			timeTotal += time;
+			timeDisplay.setText(String.format("Time: %1$.1f", timeTotal/1000));
+		}
+		 	 
 		Iterator<SceneNode> itr;
 		if (levelThemeName.equals("Snow")) {
 			// WIND PHYSICS
@@ -695,6 +716,7 @@ public class CubixGame extends BaseGame {
 			{
 				 collision = new CollisionEvent(player);
 				 eventMgr.triggerEvent(collision);
+				 wrongTileSound.play();
 			}
 		}
 
@@ -794,7 +816,6 @@ public class CubixGame extends BaseGame {
 					    "Finished in: " + String.format("%1$.1f", timeTotal/1000) + " seconds.  Press OK to quit",
 					    "WIN",
 					    JOptionPane.PLAIN_MESSAGE);
-
 				System.exit(1);
 				break;
 			case 9:
