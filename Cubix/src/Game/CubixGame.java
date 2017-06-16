@@ -357,17 +357,6 @@ public class CubixGame extends BaseGame {
 			}
 		}
 
-		// add 3D axis
-		Point3D origin = new Point3D(0, 0, 0);
-		Point3D xEnd = new Point3D(100, 0, 0);
-		Point3D yEnd = new Point3D(0, 100, 0);
-		Point3D zEnd = new Point3D(0, 0, 100);
-		Line xAxis = new Line(origin, xEnd, Color.red, 2);
-		Line yAxis = new Line(origin, yEnd, Color.green, 2);
-		Line zAxis = new Line(origin, zEnd, Color.blue, 2);
-		addGameWorldObject(xAxis);
-		addGameWorldObject(yAxis);
-		addGameWorldObject(zAxis);
 
 	}
 
@@ -375,7 +364,6 @@ public class CubixGame extends BaseGame {
 		audioMgr = AudioManagerFactory.createAudioManager("sage.audio.joal.JOALAudioManager");
 		if (!audioMgr.initialize()) {
 			System.out.println("Audio Manager failed to initialize!");
-			;
 			return;
 		}
 		
@@ -513,7 +501,7 @@ public class CubixGame extends BaseGame {
 		switch(levelThemeName){
 			case "Island": imgTerrain.translate(-8,.55f,-8); break;
 			case "Snow": imgTerrain.translate(-12, .55f, -12); break;
-			case "Halloween": imgTerrain.translate(-16, .65f, -16); break; 
+			case "Halloween": imgTerrain.translate(-12, .55f, -12); break; 
 		}
 
 		addGameWorldObject(imgTerrain);
