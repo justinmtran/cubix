@@ -34,9 +34,9 @@ public class CubixCameraController{
 		this.avatar = avatar;
 		this.controllerName = controllerName;
 		worldUpVec = new Vector3D(0, 1, 0);
-		cameraDistanceFromTarget = 12.0f;
+		cameraDistanceFromTarget = 11.0f;
 		cameraAzimuth = 170; // start from BEHIND and ABOVE the target
-		cameraElevation = 60.0f; // elevation is in degrees
+		cameraElevation = 5;//60.0f; // elevation is in degrees
 		update(0.0f); // initialize camera state
 		setupInput(inputMgr, controllerName);
 	}
@@ -97,7 +97,7 @@ public class CubixCameraController{
 	}
 	
 	/**
-	 *  Camera rotates on Y-axis with RESPECT to the AVATAR
+	 *  Camera rotates on X-axis with RESPECT to the AVATAR
 	 */
 	private class CameraRotateX extends AbstractInputAction { 
 		
